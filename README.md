@@ -6,3 +6,4 @@ GV hướng dẫn: Hà Lê Hoài Trung - trunghlh@uit.edu.vn
 ## Danh sách thành viên
 1. La Văn Tiến - 24730144 - cariyaputta@gmail.com
 2. Lê Thị Mỹ Dung - 24730091 - d29291157@gmail.com
+3. Nguyễn Duy Nhiệm - 24730129 - 24730129@ms.uit.edu.vn
