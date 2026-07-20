@@ -12,3 +12,9 @@ GV hướng dẫn: Hà Lê Hoài Trung - trunghlh@uit.edu.vn
 4. Hoàng Ngọc Long    - 24730108   - 24730108@ms.uit.edu.vn
 5. Bùi Quang Vinh     - 24730151   - nhoxvinhdx619@gmail.com
 ```
+
+## Đề tài
+
+Công ty: Highlands Coffee
+
+Lĩnh vực: Foods and Beverages
