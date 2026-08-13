@@ -1,4 +1,155 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_1">
-  <bpmn:process id="Process_1" isExecutable="false" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_P01" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_P01">
+    <bpmn:participant id="Pool_P01" name="HIGHLANDS COFFEE - PHÊ DUYỆT MẶT BẰNG" processRef="Process_P01" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_P01" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_P01">
+      <bpmn:lane id="Lane_BD" name="Phòng Phát Triển Mặt Bằng">
+        <bpmn:flowNodeRef>Start_P01</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Survey</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_TrafficCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Survey_Fail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InitNegotiate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_BudgetCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Renegotiate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_RenegotiateCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Budget_Fail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_BudgetMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ForkAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HandoverStore</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_P01_Success</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Legal" name="Phòng Pháp Chế">
+        <bpmn:flowNodeRef>Task_LegalAudit</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Finance" name="Phòng Tài Chính - Kế Toán">
+        <bpmn:flowNodeRef>Task_FinancialModel</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_BOD" name="Ban Tổng Giám Đốc (CEO / BOD)">
+        <bpmn:flowNodeRef>GW_JoinAssessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_EvalPassed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Eval_Fail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BOD_Review</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_BOD_Approve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_BOD_Reject</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ContractLoopJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SignContract</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_OwnerAgree</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AdjustAppendix</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_P01" name="Kế hoạch mở rộng&#10;được tiếp nhận"><bpmn:outgoing>F_P01_1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_Survey" name="Khảo sát vị trí &amp;&#10;đo lưu lượng khách"><bpmn:incoming>F_P01_1</bpmn:incoming><bpmn:outgoing>F_P01_2</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_TrafficCheck" name="Lưu lượng khách&#10;&gt; 3.000 lượt/ngày?"><bpmn:incoming>F_P01_2</bpmn:incoming><bpmn:outgoing>F_Traffic_Pass</bpmn:outgoing><bpmn:outgoing>F_Traffic_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Survey_Fail" name="Hồ sơ vị trí&#10;đã bị hủy"><bpmn:incoming>F_Traffic_Fail</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_InitNegotiate" name="Đàm phán sơ bộ&#10;giá thuê &amp; cọc"><bpmn:incoming>F_Traffic_Pass</bpmn:incoming><bpmn:outgoing>F_P01_3</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_BudgetCheck" name="Giá thuê trong&#10;hạn mức ngân sách?"><bpmn:incoming>F_P01_3</bpmn:incoming><bpmn:outgoing>F_Budget_Ok</bpmn:outgoing><bpmn:outgoing>F_Budget_Over</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_Renegotiate" name="Tái thương lượng&#10;giá thuê"><bpmn:incoming>F_Budget_Over</bpmn:incoming><bpmn:outgoing>F_P01_4</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_RenegotiateCheck" name="Đàm phán lại&#10;thành công?"><bpmn:incoming>F_P01_4</bpmn:incoming><bpmn:outgoing>F_Reneg_Yes</bpmn:outgoing><bpmn:outgoing>F_Reneg_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Budget_Fail" name="Dự án bị hủy&#10;do vượt ngân sách"><bpmn:incoming>F_Reneg_No</bpmn:incoming></bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_BudgetMerge"><bpmn:incoming>F_Budget_Ok</bpmn:incoming><bpmn:incoming>F_Reneg_Yes</bpmn:incoming><bpmn:outgoing>F_To_Fork</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="GW_ForkAssessment" name="Phân luồng thẩm định&#10;song song"><bpmn:incoming>F_To_Fork</bpmn:incoming><bpmn:outgoing>F_Fork_Legal</bpmn:outgoing><bpmn:outgoing>F_Fork_Fin</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:task id="Task_LegalAudit" name="Thẩm định pháp lý&#10;&amp; quy hoạch PCCC"><bpmn:incoming>F_Fork_Legal</bpmn:incoming><bpmn:outgoing>F_Join_Legal</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_FinancialModel" name="Lập mô hình P&amp;L,&#10;tính hoàn vốn &amp; ROI"><bpmn:incoming>F_Fork_Fin</bpmn:incoming><bpmn:outgoing>F_Join_Fin</bpmn:outgoing></bpmn:task>
+    <bpmn:parallelGateway id="GW_JoinAssessment" name="Đồng bộ kết quả&#10;thẩm định"><bpmn:incoming>F_Join_Legal</bpmn:incoming><bpmn:incoming>F_Join_Fin</bpmn:incoming><bpmn:outgoing>F_P01_5</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="GW_EvalPassed" name="Cả 2 thẩm định pháp lý&#10;&amp; tài chính đạt chuẩn?"><bpmn:incoming>F_P01_5</bpmn:incoming><bpmn:outgoing>F_Eval_Pass</bpmn:outgoing><bpmn:outgoing>F_Eval_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Eval_Fail" name="Dự án bị từ chối&#10;do thẩm định trượt"><bpmn:incoming>F_Eval_Fail</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_BOD_Review" name="Hội đồng đầu tư&#10;họp xét duyệt hồ sơ"><bpmn:incoming>F_Eval_Pass</bpmn:incoming><bpmn:outgoing>F_P01_6</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_BOD_Approve" name="Ban Giám Đốc&#10;phê duyệt?"><bpmn:incoming>F_P01_6</bpmn:incoming><bpmn:outgoing>F_BOD_Pass</bpmn:outgoing><bpmn:outgoing>F_BOD_Reject</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_BOD_Reject" name="Dự án bị Ban Giám Đốc&#10;từ chối phê duyệt"><bpmn:incoming>F_BOD_Reject</bpmn:incoming></bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_ContractLoopJoin"><bpmn:incoming>F_BOD_Pass</bpmn:incoming><bpmn:incoming>F_Loop_Back</bpmn:incoming><bpmn:outgoing>F_P01_7</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_SignContract" name="Soạn thảo, ký kết &amp;&#10;công chứng hợp đồng"><bpmn:incoming>F_P01_7</bpmn:incoming><bpmn:outgoing>F_P01_8</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_OwnerAgree" name="Chủ nhà đồng ý&#10;điều khoản HĐ?"><bpmn:incoming>F_P01_8</bpmn:incoming><bpmn:outgoing>F_Owner_Signed</bpmn:outgoing><bpmn:outgoing>F_Owner_Adjust</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_AdjustAppendix" name="Thương lượng&#10;điều chỉnh phụ lục"><bpmn:incoming>F_Owner_Adjust</bpmn:incoming><bpmn:outgoing>F_Loop_Back</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_HandoverStore" name="Nhận bàn giao&#10;mặt bằng &amp; khởi công"><bpmn:incoming>F_Owner_Signed</bpmn:incoming><bpmn:outgoing>F_P01_9</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_P01_Success" name="Cửa hàng mới&#10;đã mở thành công"><bpmn:incoming>F_P01_9</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_P01_1" sourceRef="Start_P01" targetRef="Task_Survey" />
+    <bpmn:sequenceFlow id="F_P01_2" sourceRef="Task_Survey" targetRef="GW_TrafficCheck" />
+    <bpmn:sequenceFlow id="F_Traffic_Pass" name="Đạt chuẩn" sourceRef="GW_TrafficCheck" targetRef="Task_InitNegotiate" />
+    <bpmn:sequenceFlow id="F_Traffic_Fail" name="Không đạt" sourceRef="GW_TrafficCheck" targetRef="End_Survey_Fail" />
+    <bpmn:sequenceFlow id="F_P01_3" sourceRef="Task_InitNegotiate" targetRef="GW_BudgetCheck" />
+    <bpmn:sequenceFlow id="F_Budget_Ok" name="Hợp lý" sourceRef="GW_BudgetCheck" targetRef="GW_BudgetMerge" />
+    <bpmn:sequenceFlow id="F_Budget_Over" name="Vượt mức" sourceRef="GW_BudgetCheck" targetRef="Task_Renegotiate" />
+    <bpmn:sequenceFlow id="F_P01_4" sourceRef="Task_Renegotiate" targetRef="GW_RenegotiateCheck" />
+    <bpmn:sequenceFlow id="F_Reneg_Yes" name="Thành công" sourceRef="GW_RenegotiateCheck" targetRef="GW_BudgetMerge" />
+    <bpmn:sequenceFlow id="F_Reneg_No" name="Thất bại" sourceRef="GW_RenegotiateCheck" targetRef="End_Budget_Fail" />
+    <bpmn:sequenceFlow id="F_To_Fork" sourceRef="GW_BudgetMerge" targetRef="GW_ForkAssessment" />
+    <bpmn:sequenceFlow id="F_Fork_Legal" sourceRef="GW_ForkAssessment" targetRef="Task_LegalAudit" />
+    <bpmn:sequenceFlow id="F_Fork_Fin" sourceRef="GW_ForkAssessment" targetRef="Task_FinancialModel" />
+    <bpmn:sequenceFlow id="F_Join_Legal" sourceRef="Task_LegalAudit" targetRef="GW_JoinAssessment" />
+    <bpmn:sequenceFlow id="F_Join_Fin" sourceRef="Task_FinancialModel" targetRef="GW_JoinAssessment" />
+    <bpmn:sequenceFlow id="F_P01_5" sourceRef="GW_JoinAssessment" targetRef="GW_EvalPassed" />
+    <bpmn:sequenceFlow id="F_Eval_Pass" name="Đạt chuẩn" sourceRef="GW_EvalPassed" targetRef="Task_BOD_Review" />
+    <bpmn:sequenceFlow id="F_Eval_Fail" name="Không đạt" sourceRef="GW_EvalPassed" targetRef="End_Eval_Fail" />
+    <bpmn:sequenceFlow id="F_P01_6" sourceRef="Task_BOD_Review" targetRef="GW_BOD_Approve" />
+    <bpmn:sequenceFlow id="F_BOD_Pass" name="Phê duyệt" sourceRef="GW_BOD_Approve" targetRef="GW_ContractLoopJoin" />
+    <bpmn:sequenceFlow id="F_BOD_Reject" name="Bác bỏ" sourceRef="GW_BOD_Approve" targetRef="End_BOD_Reject" />
+    <bpmn:sequenceFlow id="F_P01_7" sourceRef="GW_ContractLoopJoin" targetRef="Task_SignContract" />
+    <bpmn:sequenceFlow id="F_P01_8" sourceRef="Task_SignContract" targetRef="GW_OwnerAgree" />
+    <bpmn:sequenceFlow id="F_Owner_Signed" name="Đồng ý ký" sourceRef="GW_OwnerAgree" targetRef="Task_HandoverStore" />
+    <bpmn:sequenceFlow id="F_Owner_Adjust" name="Yêu cầu sửa" sourceRef="GW_OwnerAgree" targetRef="Task_AdjustAppendix" />
+    <bpmn:sequenceFlow id="F_Loop_Back" name="Sửa xong" sourceRef="Task_AdjustAppendix" targetRef="GW_ContractLoopJoin" />
+    <bpmn:sequenceFlow id="F_P01_9" sourceRef="Task_HandoverStore" targetRef="End_P01_Success" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P01">
+    <bpmndi:BPMNPlane id="BPMNPlane_P01" bpmnElement="Collaboration_P01">
+      <bpmndi:BPMNShape id="Pool_P01_di" bpmnElement="Pool_P01" isHorizontal="true"><dc:Bounds x="40" y="40" width="2720" height="940" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_BD_di" bpmnElement="Lane_BD" isHorizontal="true"><dc:Bounds x="70" y="40" width="2690" height="240" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Legal_di" bpmnElement="Lane_Legal" isHorizontal="true"><dc:Bounds x="70" y="280" width="2690" height="190" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Finance_di" bpmnElement="Lane_Finance" isHorizontal="true"><dc:Bounds x="70" y="470" width="2690" height="190" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_BOD_di" bpmnElement="Lane_BOD" isHorizontal="true"><dc:Bounds x="70" y="660" width="2690" height="320" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_P01_di" bpmnElement="Start_P01"><dc:Bounds x="120" y="122" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="95" y="165" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Survey_di" bpmnElement="Task_Survey"><dc:Bounds x="210" y="105" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_TrafficCheck_di" bpmnElement="GW_TrafficCheck" isMarkerVisible="true"><dc:Bounds x="410" y="118" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="375" y="70" width="115" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Survey_Fail_di" bpmnElement="End_Survey_Fail"><dc:Bounds x="414" y="205" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="395" y="245" width="75" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InitNegotiate_di" bpmnElement="Task_InitNegotiate"><dc:Bounds x="520" y="105" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_BudgetCheck_di" bpmnElement="GW_BudgetCheck" isMarkerVisible="true"><dc:Bounds x="720" y="118" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="685" y="70" width="115" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Renegotiate_di" bpmnElement="Task_Renegotiate"><dc:Bounds x="820" y="180" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_RenegotiateCheck_di" bpmnElement="GW_RenegotiateCheck" isMarkerVisible="true"><dc:Bounds x="1020" y="190" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="958" y="154" width="80" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Budget_Fail_di" bpmnElement="End_Budget_Fail"><dc:Bounds x="1130" y="194" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1105" y="235" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_BudgetMerge_di" bpmnElement="GW_BudgetMerge" isMarkerVisible="true"><dc:Bounds x="1020" y="118" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ForkAssessment_di" bpmnElement="GW_ForkAssessment"><dc:Bounds x="1130" y="118" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1100" y="70" width="110" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LegalAudit_di" bpmnElement="Task_LegalAudit"><dc:Bounds x="1250" y="340" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FinancialModel_di" bpmnElement="Task_FinancialModel"><dc:Bounds x="1250" y="530" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_JoinAssessment_di" bpmnElement="GW_JoinAssessment"><dc:Bounds x="1460" y="730" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1394" y="694" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_EvalPassed_di" bpmnElement="GW_EvalPassed" isMarkerVisible="true"><dc:Bounds x="1570" y="730" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1545" y="675" width="100" height="50" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Eval_Fail_di" bpmnElement="End_Eval_Fail"><dc:Bounds x="1574" y="820" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1550" y="860" width="85" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BOD_Review_di" bpmnElement="Task_BOD_Review"><dc:Bounds x="1680" y="717" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_BOD_Approve_di" bpmnElement="GW_BOD_Approve" isMarkerVisible="true"><dc:Bounds x="1880" y="730" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1860" y="690" width="85" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_BOD_Reject_di" bpmnElement="End_BOD_Reject"><dc:Bounds x="1884" y="820" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1858" y="860" width="90" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ContractLoopJoin_di" bpmnElement="GW_ContractLoopJoin" isMarkerVisible="true"><dc:Bounds x="1990" y="730" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SignContract_di" bpmnElement="Task_SignContract"><dc:Bounds x="2090" y="717" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_OwnerAgree_di" bpmnElement="GW_OwnerAgree" isMarkerVisible="true"><dc:Bounds x="2290" y="730" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="2255" y="675" width="115" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AdjustAppendix_di" bpmnElement="Task_AdjustAppendix"><dc:Bounds x="2240" y="830" width="145" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HandoverStore_di" bpmnElement="Task_HandoverStore"><dc:Bounds x="2460" y="105" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_P01_Success_di" bpmnElement="End_P01_Success"><dc:Bounds x="2660" y="122" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="2635" y="165" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_P01_1_di" bpmnElement="F_P01_1"><di:waypoint x="156" y="140" /><di:waypoint x="210" y="140" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_2_di" bpmnElement="F_P01_2"><di:waypoint x="350" y="140" /><di:waypoint x="410" y="140" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Traffic_Pass_di" bpmnElement="F_Traffic_Pass"><di:waypoint x="454" y="140" /><di:waypoint x="520" y="140" /><bpmndi:BPMNLabel><dc:Bounds x="458" y="120" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Traffic_Fail_di" bpmnElement="F_Traffic_Fail"><di:waypoint x="432" y="162" /><di:waypoint x="432" y="205" /><bpmndi:BPMNLabel><dc:Bounds x="438" y="175" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_3_di" bpmnElement="F_P01_3"><di:waypoint x="660" y="140" /><di:waypoint x="720" y="140" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Budget_Ok_di" bpmnElement="F_Budget_Ok"><di:waypoint x="764" y="140" /><di:waypoint x="1020" y="140" /><bpmndi:BPMNLabel><dc:Bounds x="870" y="120" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Budget_Over_di" bpmnElement="F_Budget_Over"><di:waypoint x="742" y="162" /><di:waypoint x="742" y="212" /><di:waypoint x="820" y="212" /><bpmndi:BPMNLabel><dc:Bounds x="748" y="185" width="55" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_4_di" bpmnElement="F_P01_4"><di:waypoint x="960" y="212" /><di:waypoint x="1020" y="212" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Reneg_Yes_di" bpmnElement="F_Reneg_Yes"><di:waypoint x="1042" y="190" /><di:waypoint x="1042" y="162" /><bpmndi:BPMNLabel><dc:Bounds x="1046" y="172" width="65" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Reneg_No_di" bpmnElement="F_Reneg_No"><di:waypoint x="1064" y="212" /><di:waypoint x="1130" y="212" /><bpmndi:BPMNLabel><dc:Bounds x="1070" y="192" width="48" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_To_Fork_di" bpmnElement="F_To_Fork"><di:waypoint x="1064" y="140" /><di:waypoint x="1130" y="140" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Fork_Legal_di" bpmnElement="F_Fork_Legal"><di:waypoint x="1174" y="140" /><di:waypoint x="1200" y="140" /><di:waypoint x="1200" y="375" /><di:waypoint x="1250" y="375" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Fork_Fin_di" bpmnElement="F_Fork_Fin"><di:waypoint x="1174" y="140" /><di:waypoint x="1200" y="140" /><di:waypoint x="1200" y="565" /><di:waypoint x="1250" y="565" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Join_Legal_di" bpmnElement="F_Join_Legal"><di:waypoint x="1390" y="375" /><di:waypoint x="1482" y="375" /><di:waypoint x="1482" y="730" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Join_Fin_di" bpmnElement="F_Join_Fin"><di:waypoint x="1390" y="565" /><di:waypoint x="1482" y="565" /><di:waypoint x="1482" y="730" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_5_di" bpmnElement="F_P01_5"><di:waypoint x="1504" y="752" /><di:waypoint x="1570" y="752" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Eval_Pass_di" bpmnElement="F_Eval_Pass"><di:waypoint x="1614" y="752" /><di:waypoint x="1680" y="752" /><bpmndi:BPMNLabel><dc:Bounds x="1618" y="732" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Eval_Fail_di" bpmnElement="F_Eval_Fail"><di:waypoint x="1592" y="774" /><di:waypoint x="1592" y="820" /><bpmndi:BPMNLabel><dc:Bounds x="1588" y="792" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_6_di" bpmnElement="F_P01_6"><di:waypoint x="1820" y="752" /><di:waypoint x="1880" y="752" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_BOD_Pass_di" bpmnElement="F_BOD_Pass"><di:waypoint x="1924" y="752" /><di:waypoint x="1990" y="752" /><bpmndi:BPMNLabel><dc:Bounds x="1928" y="732" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_BOD_Reject_di" bpmnElement="F_BOD_Reject"><di:waypoint x="1902" y="774" /><di:waypoint x="1902" y="820" /><bpmndi:BPMNLabel><dc:Bounds x="1908" y="792" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_7_di" bpmnElement="F_P01_7"><di:waypoint x="2034" y="752" /><di:waypoint x="2090" y="752" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_8_di" bpmnElement="F_P01_8"><di:waypoint x="2230" y="752" /><di:waypoint x="2290" y="752" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Owner_Signed_di" bpmnElement="F_Owner_Signed"><di:waypoint x="2334" y="752" /><di:waypoint x="2400" y="752" /><di:waypoint x="2400" y="140" /><di:waypoint x="2460" y="140" /><bpmndi:BPMNLabel><dc:Bounds x="2338" y="732" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Owner_Adjust_di" bpmnElement="F_Owner_Adjust"><di:waypoint x="2312" y="774" /><di:waypoint x="2312" y="830" /><bpmndi:BPMNLabel><dc:Bounds x="2320" y="792" width="75" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Loop_Back_di" bpmnElement="F_Loop_Back"><di:waypoint x="2240" y="862" /><di:waypoint x="2012" y="862" /><di:waypoint x="2012" y="774" /><bpmndi:BPMNLabel><dc:Bounds x="2090" y="842" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P01_9_di" bpmnElement="F_P01_9"><di:waypoint x="2600" y="140" /><di:waypoint x="2660" y="140" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </bpmn:definitions>
