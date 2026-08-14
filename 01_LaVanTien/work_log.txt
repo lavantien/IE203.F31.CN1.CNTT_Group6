@@ -1,1 +1,2 @@
 2026-08-12T15:40:00: docs: doc ky rubric va chuan bi template
+2026-08-14T20:35:00: chore: tao form khao sat gui cho Highlands
