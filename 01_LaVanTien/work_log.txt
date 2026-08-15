@@ -1,2 +1,3 @@
 2026-08-12T15:40:00: docs: doc ky rubric va chuan bi template
 2026-08-14T20:35:00: chore: tao form khao sat gui cho Highlands
+2026-08-15T07:22:00: update: tong hop so lieu tu cac thanh vien khac
