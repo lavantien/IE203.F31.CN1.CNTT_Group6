@@ -1,4 +1,120 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_1">
-  <bpmn:process id="Process_1" isExecutable="false" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_P02" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_P02">
+    <bpmn:participant id="Pool_P02" name="HIGHLANDS COFFEE - THANH TRA ATVSTP" processRef="Process_P02" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_P02" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_P02">
+      <bpmn:lane id="Lane_QA" name="Phòng Đảm Bảo Chất Lượng (QA/QC)">
+        <bpmn:flowNodeRef>Start_QA</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AuditPlan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InspectStore</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckHyg</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckTemp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ScoreCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_QA_Pass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FineRecord</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ReAudit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ReAudit_Pass</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Store" name="Cửa Hàng Trưởng (Store Manager)">
+        <bpmn:flowNodeRef>Task_ReceiveAudit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_StoreAction</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_FixJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FixErrors</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_OM" name="Giám Đốc Vận Hành (Operations Director)">
+        <bpmn:flowNodeRef>GW_OMJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OM_Review</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_OM_Decision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CloseStore</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_QA_Closed</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_QA" name="Lịch kiểm tra&#10;đã được lên"><bpmn:outgoing>F_QA1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_AuditPlan" name="Chuẩn bị checklist&#10;tiêu chuẩn ATVSTP"><bpmn:incoming>F_QA1</bpmn:incoming><bpmn:outgoing>F_QA2</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_InspectStore" name="Đến trực tiếp cửa hàng&#10;&amp; kích hoạt kiểm tra"><bpmn:incoming>F_QA2</bpmn:incoming><bpmn:outgoing>F_QA3</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_CheckHyg" name="Kiểm tra độ sạch máy pha,&#10;quầy bar &amp; dụng cụ pha chế"><bpmn:incoming>F_QA3</bpmn:incoming><bpmn:outgoing>F_QA3b</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_CheckTemp" name="Đo nhiệt độ tủ mát (&lt;4°C)&#10;&amp; kiểm tra hạn date nguyên liệu"><bpmn:incoming>F_QA3b</bpmn:incoming><bpmn:outgoing>F_QA4</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_ScoreCheck" name="Điểm audit ATVSTP&#10;&gt; 90/100 điểm?"><bpmn:incoming>F_QA4</bpmn:incoming><bpmn:outgoing>F_Score_Pass</bpmn:outgoing><bpmn:outgoing>F_Score_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_QA_Pass" name="Cửa hàng đạt chuẩn&#10;ATVSTP"><bpmn:incoming>F_Score_Pass</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_FineRecord" name="Lập biên bản vi phạm&#10;&amp; giao hạn khắc phục"><bpmn:incoming>F_Score_Fail</bpmn:incoming><bpmn:outgoing>F_QA5</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ReceiveAudit" name="Ký biên bản &amp;&#10;nhận danh sách lỗi"><bpmn:incoming>F_QA5</bpmn:incoming><bpmn:outgoing>F_QA6</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_StoreAction" name="Mức độ vi phạm&#10;có nghiêm trọng?"><bpmn:incoming>F_QA6</bpmn:incoming><bpmn:outgoing>F_Act_Light</bpmn:outgoing><bpmn:outgoing>F_Act_Heavy</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_FixJoin"><bpmn:incoming>F_Act_Light</bpmn:incoming><bpmn:incoming>F_OM_Warn</bpmn:incoming><bpmn:outgoing>F_Fix_In</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_FixErrors" name="Khắc phục lỗi &amp;&#10;gửi báo cáo ảnh minh chứng"><bpmn:incoming>F_Fix_In</bpmn:incoming><bpmn:outgoing>F_QA7</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_ReAudit" name="Phúc tra lại&#10;đạt yêu cầu?"><bpmn:incoming>F_QA7</bpmn:incoming><bpmn:outgoing>F_Re_Pass</bpmn:outgoing><bpmn:outgoing>F_Re_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_ReAudit_Pass" name="Cửa hàng đạt&#10;chuẩn phúc tra"><bpmn:incoming>F_Re_Pass</bpmn:incoming></bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_OMJoin"><bpmn:incoming>F_Act_Heavy</bpmn:incoming><bpmn:incoming>F_Re_Fail</bpmn:incoming><bpmn:outgoing>F_OM_In</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_OM_Review" name="Giám đốc xem xét&#10;hồ sơ vi phạm nặng"><bpmn:incoming>F_OM_In</bpmn:incoming><bpmn:outgoing>F_QA8</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_OM_Decision" name="Quyết định đình chỉ&#10;hoạt động quán?"><bpmn:incoming>F_QA8</bpmn:incoming><bpmn:outgoing>F_OM_Close</bpmn:outgoing><bpmn:outgoing>F_OM_Warn</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_CloseStore" name="Đóng cửa tạm thời&#10;để tổng vệ sinh toàn diện"><bpmn:incoming>F_OM_Close</bpmn:incoming><bpmn:outgoing>F_QA9</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_QA_Closed" name="Cửa hàng đã bị&#10;đình chỉ tạm thời"><bpmn:incoming>F_QA9</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_QA1" sourceRef="Start_QA" targetRef="Task_AuditPlan" />
+    <bpmn:sequenceFlow id="F_QA2" sourceRef="Task_AuditPlan" targetRef="Task_InspectStore" />
+    <bpmn:sequenceFlow id="F_QA3" sourceRef="Task_InspectStore" targetRef="Task_CheckHyg" />
+    <bpmn:sequenceFlow id="F_QA3b" sourceRef="Task_CheckHyg" targetRef="Task_CheckTemp" />
+    <bpmn:sequenceFlow id="F_QA4" sourceRef="Task_CheckTemp" targetRef="GW_ScoreCheck" />
+    <bpmn:sequenceFlow id="F_Score_Pass" name="Đạt (&gt;90đ)" sourceRef="GW_ScoreCheck" targetRef="End_QA_Pass" />
+    <bpmn:sequenceFlow id="F_Score_Fail" name="Dưới 90đ" sourceRef="GW_ScoreCheck" targetRef="Task_FineRecord" />
+    <bpmn:sequenceFlow id="F_QA5" sourceRef="Task_FineRecord" targetRef="Task_ReceiveAudit" />
+    <bpmn:sequenceFlow id="F_QA6" sourceRef="Task_ReceiveAudit" targetRef="GW_StoreAction" />
+    <bpmn:sequenceFlow id="F_Act_Light" name="Lỗi nhẹ" sourceRef="GW_StoreAction" targetRef="GW_FixJoin" />
+    <bpmn:sequenceFlow id="F_Act_Heavy" name="Lỗi nặng" sourceRef="GW_StoreAction" targetRef="GW_OMJoin" />
+    <bpmn:sequenceFlow id="F_Fix_In" sourceRef="GW_FixJoin" targetRef="Task_FixErrors" />
+    <bpmn:sequenceFlow id="F_QA7" sourceRef="Task_FixErrors" targetRef="GW_ReAudit" />
+    <bpmn:sequenceFlow id="F_Re_Pass" name="Đạt phúc tra" sourceRef="GW_ReAudit" targetRef="End_ReAudit_Pass" />
+    <bpmn:sequenceFlow id="F_Re_Fail" name="Tái phạm" sourceRef="GW_ReAudit" targetRef="GW_OMJoin" />
+    <bpmn:sequenceFlow id="F_OM_In" sourceRef="GW_OMJoin" targetRef="Task_OM_Review" />
+    <bpmn:sequenceFlow id="F_QA8" sourceRef="Task_OM_Review" targetRef="GW_OM_Decision" />
+    <bpmn:sequenceFlow id="F_OM_Close" name="Đình chỉ" sourceRef="GW_OM_Decision" targetRef="Task_CloseStore" />
+    <bpmn:sequenceFlow id="F_OM_Warn" name="Cảnh cáo" sourceRef="GW_OM_Decision" targetRef="GW_FixJoin" />
+    <bpmn:sequenceFlow id="F_QA9" sourceRef="Task_CloseStore" targetRef="End_QA_Closed" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P02">
+    <bpmndi:BPMNPlane id="BPMNPlane_P02" bpmnElement="Collaboration_P02">
+      <bpmndi:BPMNShape id="Pool_P02_di" bpmnElement="Pool_P02" isHorizontal="true"><dc:Bounds x="40" y="40" width="1980" height="920" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_QA_di" bpmnElement="Lane_QA" isHorizontal="true"><dc:Bounds x="70" y="40" width="1950" height="280" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Store_di" bpmnElement="Lane_Store" isHorizontal="true"><dc:Bounds x="70" y="320" width="1950" height="260" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_OM_di" bpmnElement="Lane_OM" isHorizontal="true"><dc:Bounds x="70" y="580" width="1950" height="380" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_QA_di" bpmnElement="Start_QA"><dc:Bounds x="120" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="98" y="175" width="80" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AuditPlan_di" bpmnElement="Task_AuditPlan"><dc:Bounds x="210" y="115" width="135" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InspectStore_di" bpmnElement="Task_InspectStore"><dc:Bounds x="400" y="115" width="135" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckHyg_di" bpmnElement="Task_CheckHyg"><dc:Bounds x="590" y="115" width="145" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckTemp_di" bpmnElement="Task_CheckTemp"><dc:Bounds x="790" y="115" width="145" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ScoreCheck_di" bpmnElement="GW_ScoreCheck" isMarkerVisible="true"><dc:Bounds x="990" y="128" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="970" y="85" width="85" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_QA_Pass_di" bpmnElement="End_QA_Pass"><dc:Bounds x="1110" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1085" y="175" width="85" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FineRecord_di" bpmnElement="Task_FineRecord"><dc:Bounds x="945" y="225" width="135" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveAudit_di" bpmnElement="Task_ReceiveAudit"><dc:Bounds x="945" y="430" width="135" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_StoreAction_di" bpmnElement="GW_StoreAction" isMarkerVisible="true"><dc:Bounds x="1150" y="443" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1130" y="400" width="85" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_FixJoin_di" bpmnElement="GW_FixJoin" isMarkerVisible="true"><dc:Bounds x="1260" y="443" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FixErrors_di" bpmnElement="Task_FixErrors"><dc:Bounds x="1370" y="430" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ReAudit_di" bpmnElement="GW_ReAudit" isMarkerVisible="true"><dc:Bounds x="1580" y="128" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1565" y="85" width="75" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ReAudit_Pass_di" bpmnElement="End_ReAudit_Pass"><dc:Bounds x="1710" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1685" y="175" width="85" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_OMJoin_di" bpmnElement="GW_OMJoin" isMarkerVisible="true"><dc:Bounds x="1260" y="743" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OM_Review_di" bpmnElement="Task_OM_Review"><dc:Bounds x="1370" y="730" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_OM_Decision_di" bpmnElement="GW_OM_Decision" isMarkerVisible="true"><dc:Bounds x="1580" y="743" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1480" y="707" width="95" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CloseStore_di" bpmnElement="Task_CloseStore"><dc:Bounds x="1700" y="730" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_QA_Closed_di" bpmnElement="End_QA_Closed"><dc:Bounds x="1920" y="747" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1895" y="790" width="85" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_QA1_di" bpmnElement="F_QA1"><di:waypoint x="156" y="150" /><di:waypoint x="210" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA2_di" bpmnElement="F_QA2"><di:waypoint x="345" y="150" /><di:waypoint x="400" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA3_di" bpmnElement="F_QA3"><di:waypoint x="535" y="150" /><di:waypoint x="590" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA3b_di" bpmnElement="F_QA3b"><di:waypoint x="735" y="150" /><di:waypoint x="790" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA4_di" bpmnElement="F_QA4"><di:waypoint x="935" y="150" /><di:waypoint x="990" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Score_Pass_di" bpmnElement="F_Score_Pass"><di:waypoint x="1034" y="150" /><di:waypoint x="1110" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="1040" y="130" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Score_Fail_di" bpmnElement="F_Score_Fail"><di:waypoint x="1012" y="172" /><di:waypoint x="1012" y="225" /><bpmndi:BPMNLabel><dc:Bounds x="1018" y="190" width="55" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA5_di" bpmnElement="F_QA5"><di:waypoint x="1012" y="295" /><di:waypoint x="1012" y="430" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA6_di" bpmnElement="F_QA6"><di:waypoint x="1080" y="465" /><di:waypoint x="1150" y="465" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Act_Light_di" bpmnElement="F_Act_Light"><di:waypoint x="1194" y="465" /><di:waypoint x="1260" y="465" /><bpmndi:BPMNLabel><dc:Bounds x="1200" y="445" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Act_Heavy_di" bpmnElement="F_Act_Heavy"><di:waypoint x="1172" y="487" /><di:waypoint x="1172" y="765" /><di:waypoint x="1260" y="765" /><bpmndi:BPMNLabel><dc:Bounds x="1178" y="620" width="50" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Fix_In_di" bpmnElement="F_Fix_In"><di:waypoint x="1304" y="465" /><di:waypoint x="1370" y="465" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA7_di" bpmnElement="F_QA7"><di:waypoint x="1440" y="430" /><di:waypoint x="1440" y="150" /><di:waypoint x="1580" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Re_Pass_di" bpmnElement="F_Re_Pass"><di:waypoint x="1624" y="150" /><di:waypoint x="1710" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="1630" y="130" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Re_Fail_di" bpmnElement="F_Re_Fail"><di:waypoint x="1602" y="172" /><di:waypoint x="1602" y="630" /><di:waypoint x="1282" y="630" /><di:waypoint x="1282" y="743" /><bpmndi:BPMNLabel><dc:Bounds x="1420" y="610" width="50" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_OM_In_di" bpmnElement="F_OM_In"><di:waypoint x="1304" y="765" /><di:waypoint x="1370" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA8_di" bpmnElement="F_QA8"><di:waypoint x="1510" y="765" /><di:waypoint x="1580" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_OM_Close_di" bpmnElement="F_OM_Close"><di:waypoint x="1624" y="765" /><di:waypoint x="1700" y="765" /><bpmndi:BPMNLabel><dc:Bounds x="1635" y="745" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_OM_Warn_di" bpmnElement="F_OM_Warn"><di:waypoint x="1602" y="743" /><di:waypoint x="1602" y="540" /><di:waypoint x="1282" y="540" /><di:waypoint x="1282" y="487" /><bpmndi:BPMNLabel><dc:Bounds x="1420" y="520" width="55" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_QA9_di" bpmnElement="F_QA9"><di:waypoint x="1840" y="765" /><di:waypoint x="1920" y="765" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </bpmn:definitions>
