@@ -1,1 +1,2 @@
 2026-08-16T17:22:00: docs(p4): phan tich gia tri gia tang (VA, BVA, NVA)
+2026-08-16T19:43:00: update(p4): phan tich 7 loai lang phi Lean
