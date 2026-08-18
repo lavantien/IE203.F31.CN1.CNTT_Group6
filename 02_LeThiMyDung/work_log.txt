@@ -1,3 +1,4 @@
 2026-08-14T23:59:00: docs(p1): tim hieu cac quy trinh cua Highlands
 2026-08-15T03:14:00: update(p1): liet ke 3 quy trinh quan ly
 2026-08-16T06:18:00: update(p1): liet ke 5 quy trinh cot loi
+2026-08-18T08:59:00: fix(p1): sua lai ten quy trinh cho dung chuan
