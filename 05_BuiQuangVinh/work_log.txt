@@ -2,3 +2,4 @@
 2026-08-16T19:43:00: update(p4): phan tich 7 loai lang phi Lean
 2026-08-17T21:58:00: feat(p4): ve bieu do Pareto 80/20
 2026-08-17T23:45:00: update(p4): ve so do xuong ca Ishikawa
+2026-08-20T05:50:00: fix(p4): ve so do 5 Why truy vet nguyen nhan
