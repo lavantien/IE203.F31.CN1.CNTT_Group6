@@ -1,3 +1,4 @@
 2026-08-15T06:01:00: docs(p3): nghien cuu phuong phap kham pha quy trinh
 2026-08-17T07:07:00: update(p3): viet phan Evidence-based
 2026-08-18T15:05:00: feat(p3): ve so do to chuc Org Chart
+2026-08-20T23:38:00: update(p3): len danh sach cau hoi phong van
