@@ -4,3 +4,4 @@
 2026-08-15T16:44:00: docs: viet loi mo dau va ket luan
 2026-08-16T20:59:00: update: lam slide thuyet trinh phan mo dau
 2026-08-18T05:12:00: chore: format lai font chu va can le toan bo bao cao
+2026-08-20T16:49:00: update: ghep slide cac phan vao slide chung
