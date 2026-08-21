@@ -4,3 +4,4 @@
 2026-08-18T08:59:00: fix(p1): sua lai ten quy trinh cho dung chuan
 2026-08-18T19:03:00: update(p1): liet ke 3 quy trinh ho tro
 2026-08-19T07:25:00: docs(p1): mo ta chi tiet tung buoc cua cac quy trinh
+2026-08-21T12:51:00: update(p1): xac dinh actor va target customer
