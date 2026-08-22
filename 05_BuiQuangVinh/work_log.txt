@@ -4,3 +4,4 @@
 2026-08-17T23:45:00: update(p4): ve so do xuong ca Ishikawa
 2026-08-20T05:50:00: fix(p4): ve so do 5 Why truy vet nguyen nhan
 2026-08-20T07:07:00: docs(p4): tinh toan thoi gian chu ky (Cycle Time)
+2026-08-22T08:44:00: update(p4): lap bang tinh chi phi va chat luong
