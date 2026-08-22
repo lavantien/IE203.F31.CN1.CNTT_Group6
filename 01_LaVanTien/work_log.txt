@@ -6,3 +6,4 @@
 2026-08-18T05:12:00: chore: format lai font chu va can le toan bo bao cao
 2026-08-20T16:49:00: update: ghep slide cac phan vao slide chung
 2026-08-20T22:33:00: fix: sua loi danh so trang va muc luc
+2026-08-22T08:17:00: docs: kiem tra dao van va hoan thien bao cao
