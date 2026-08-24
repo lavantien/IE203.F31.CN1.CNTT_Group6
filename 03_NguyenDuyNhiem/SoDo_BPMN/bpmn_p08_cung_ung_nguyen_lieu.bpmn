@@ -1,4 +1,150 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_1">
-  <bpmn:process id="Process_1" isExecutable="false" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_P08" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_P08">
+    <bpmn:participant id="Pool_Store" name="HIGHLANDS COFFEE - CỬA HÀNG" processRef="Process_Store" />
+    <bpmn:participant id="Pool_HO" name="HIGHLANDS COFFEE - HỘI SỞ SCM &amp; KẾ TOÁN" processRef="Process_HO" />
+    <bpmn:participant id="Pool_Supp" name="ĐỐI TÁC CUNG ỨNG NGUYÊN LIỆU (B2B)" processRef="Process_Supp" />
+    <bpmn:messageFlow id="M_PR_Pass" name="Gửi PR duyệt" sourceRef="Task_ReviewPR" targetRef="Task_ConsolidatePO" />
+    <bpmn:messageFlow id="M_PO" name="Phát hành PO" sourceRef="Task_ConsolidatePO" targetRef="Task_PackGoods" />
+    <bpmn:messageFlow id="M_Delivery" name="Giao xe lạnh" sourceRef="Task_ColdTruckDelivery" targetRef="Task_ReceiveGoods" />
+    <bpmn:messageFlow id="M_GRN" name="Gửi GRN điện tử" sourceRef="Task_StoreInCold" targetRef="Task_3WayMatching" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Store" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Store">
+      <bpmn:lane id="Lane_StoreK" name="Thủ Kho Cửa Hàng">
+        <bpmn:flowNodeRef>Start_SCM</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckInventory</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_StockSafety</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_SCM_Done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreatePR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReceiveGoods</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_QualityInspect</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StoreInCold</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Store_Done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RejectGoods</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Store_Fail</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_SM" name="Cửa Hàng Trưởng">
+        <bpmn:flowNodeRef>Task_ReviewPR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_PRAvail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_SCM_Reject</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_SCM" name="16:00 Kiểm kê"><bpmn:outgoing>F_S1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_CheckInventory" name="Kiểm kê tồn kho"><bpmn:incoming>F_S1</bpmn:incoming><bpmn:outgoing>F_S2</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_StockSafety" name="Tồn &lt; ROP?"><bpmn:incoming>F_S2</bpmn:incoming><bpmn:outgoing>F_Stk_Yes</bpmn:outgoing><bpmn:outgoing>F_Stk_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_SCM_Done" name="Tồn an toàn"><bpmn:incoming>F_Stk_No</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_CreatePR" name="Lập PR mua sắm"><bpmn:incoming>F_Stk_Yes</bpmn:incoming><bpmn:outgoing>F_S3</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ReviewPR" name="Duyệt đơn PR"><bpmn:incoming>F_S3</bpmn:incoming><bpmn:outgoing>F_S4</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_PRAvail" name="Duyệt?"><bpmn:incoming>F_S4</bpmn:incoming><bpmn:outgoing>F_PR_Approve</bpmn:outgoing><bpmn:outgoing>F_PR_Rej</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_SCM_Reject" name="Từ chối PR"><bpmn:incoming>F_PR_Rej</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_ReceiveGoods" name="Đo nhiệt độ xe lạnh &amp; đếm"><bpmn:incoming>F_PR_Approve</bpmn:incoming><bpmn:outgoing>F_S10</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_QualityInspect" name="Đạt chuẩn?"><bpmn:incoming>F_S10</bpmn:incoming><bpmn:outgoing>F_Qual_Pass</bpmn:outgoing><bpmn:outgoing>F_Qual_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_StoreInCold" name="Nhập kho FIFO &amp; ký GRN"><bpmn:incoming>F_Qual_Pass</bpmn:incoming><bpmn:outgoing>F_S11</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Store_Done" name="Nhập kho xong"><bpmn:incoming>F_S11</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_RejectGoods" name="Trả hàng &amp; yêu cầu bù"><bpmn:incoming>F_Qual_Fail</bpmn:incoming><bpmn:outgoing>F_S_Fail</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Store_Fail" name="Từ chối hàng"><bpmn:incoming>F_S_Fail</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_S1" sourceRef="Start_SCM" targetRef="Task_CheckInventory" />
+    <bpmn:sequenceFlow id="F_S2" sourceRef="Task_CheckInventory" targetRef="GW_StockSafety" />
+    <bpmn:sequenceFlow id="F_Stk_Yes" name="Cần" sourceRef="GW_StockSafety" targetRef="Task_CreatePR" />
+    <bpmn:sequenceFlow id="F_Stk_No" name="Đủ" sourceRef="GW_StockSafety" targetRef="End_SCM_Done" />
+    <bpmn:sequenceFlow id="F_S3" sourceRef="Task_CreatePR" targetRef="Task_ReviewPR" />
+    <bpmn:sequenceFlow id="F_S4" sourceRef="Task_ReviewPR" targetRef="GW_PRAvail" />
+    <bpmn:sequenceFlow id="F_PR_Approve" name="Duyệt" sourceRef="GW_PRAvail" targetRef="Task_ReceiveGoods" />
+    <bpmn:sequenceFlow id="F_PR_Rej" name="Hủy" sourceRef="GW_PRAvail" targetRef="End_SCM_Reject" />
+    <bpmn:sequenceFlow id="F_S10" sourceRef="Task_ReceiveGoods" targetRef="GW_QualityInspect" />
+    <bpmn:sequenceFlow id="F_Qual_Pass" name="Đạt" sourceRef="GW_QualityInspect" targetRef="Task_StoreInCold" />
+    <bpmn:sequenceFlow id="F_Qual_Fail" name="Lỗi" sourceRef="GW_QualityInspect" targetRef="Task_RejectGoods" />
+    <bpmn:sequenceFlow id="F_S11" sourceRef="Task_StoreInCold" targetRef="End_Store_Done" />
+    <bpmn:sequenceFlow id="F_S_Fail" sourceRef="Task_RejectGoods" targetRef="End_Store_Fail" />
+  </bpmn:process>
+  <bpmn:process id="Process_HO" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Pool_HO">
+      <bpmn:lane id="Lane_SCMDept" name="Phòng Mua Hàng SCM"><bpmn:flowNodeRef>Start_HO</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_ConsolidatePO</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="Lane_Acct" name="Kế Toán Thanh Toán"><bpmn:flowNodeRef>Task_3WayMatching</bpmn:flowNodeRef><bpmn:flowNodeRef>GW_MatchPass</bpmn:flowNodeRef><bpmn:flowNodeRef>End_Acct_Mismatch</bpmn:flowNodeRef><bpmn:flowNodeRef>Task_DisbursePay</bpmn:flowNodeRef><bpmn:flowNodeRef>End_Acct_Paid</bpmn:flowNodeRef></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_HO" name="Nhận PR"><bpmn:outgoing>FHO1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_ConsolidatePO" name="Gom đơn &amp; phát hành PO"><bpmn:incoming>FHO1</bpmn:incoming><bpmn:outgoing>FHO2</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_3WayMatching" name="Đối soát 3 chiều (PO/GRN/Bill)"><bpmn:incoming>FHO2</bpmn:incoming><bpmn:outgoing>F_S12</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_MatchPass" name="Khớp 100%?"><bpmn:incoming>F_S12</bpmn:incoming><bpmn:outgoing>F_Match_Yes</bpmn:outgoing><bpmn:outgoing>F_Match_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Acct_Mismatch" name="Treo hồ sơ"><bpmn:incoming>F_Match_No</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_DisbursePay" name="Ủy nhiệm chi thanh toán"><bpmn:incoming>F_Match_Yes</bpmn:incoming><bpmn:outgoing>F_S13</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Acct_Paid" name="Quyết toán xong"><bpmn:incoming>F_S13</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="FHO1" sourceRef="Start_HO" targetRef="Task_ConsolidatePO" />
+    <bpmn:sequenceFlow id="FHO2" sourceRef="Task_ConsolidatePO" targetRef="Task_3WayMatching" />
+    <bpmn:sequenceFlow id="F_S12" sourceRef="Task_3WayMatching" targetRef="GW_MatchPass" />
+    <bpmn:sequenceFlow id="F_Match_Yes" name="Khớp" sourceRef="GW_MatchPass" targetRef="Task_DisbursePay" />
+    <bpmn:sequenceFlow id="F_Match_No" name="Lệch" sourceRef="GW_MatchPass" targetRef="End_Acct_Mismatch" />
+    <bpmn:sequenceFlow id="F_S13" sourceRef="Task_DisbursePay" targetRef="End_Acct_Paid" />
+  </bpmn:process>
+  <bpmn:process id="Process_Supp" isExecutable="false">
+    <bpmn:startEvent id="Start_Supp" name="Nhận PO"><bpmn:outgoing>FSP1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_PackGoods" name="Đóng gói &amp; chuẩn bị xe"><bpmn:incoming>FSP1</bpmn:incoming><bpmn:outgoing>F_Supp1</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ColdTruckDelivery" name="Vận chuyển giao hàng"><bpmn:incoming>F_Supp1</bpmn:incoming><bpmn:outgoing>FSP2</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Supp_Done" name="Giao xong"><bpmn:incoming>FSP2</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="FSP1" sourceRef="Start_Supp" targetRef="Task_PackGoods" />
+    <bpmn:sequenceFlow id="F_Supp1" sourceRef="Task_PackGoods" targetRef="Task_ColdTruckDelivery" />
+    <bpmn:sequenceFlow id="FSP2" sourceRef="Task_ColdTruckDelivery" targetRef="End_Supp_Done" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P08">
+    <bpmndi:BPMNPlane id="BPMNPlane_P08" bpmnElement="Collaboration_P08">
+      <bpmndi:BPMNShape id="Pool_Store_di" bpmnElement="Pool_Store" isHorizontal="true"><dc:Bounds x="40" y="40" width="2390" height="430" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_StoreK_di" bpmnElement="Lane_StoreK" isHorizontal="true"><dc:Bounds x="70" y="40" width="2360" height="250" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SM_di" bpmnElement="Lane_SM" isHorizontal="true"><dc:Bounds x="70" y="290" width="2360" height="180" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pool_HO_di" bpmnElement="Pool_HO" isHorizontal="true"><dc:Bounds x="40" y="500" width="2390" height="280" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_SCMDept_di" bpmnElement="Lane_SCMDept" isHorizontal="true"><dc:Bounds x="70" y="500" width="2360" height="140" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Acct_di" bpmnElement="Lane_Acct" isHorizontal="true"><dc:Bounds x="70" y="640" width="2360" height="140" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pool_Supp_di" bpmnElement="Pool_Supp" isHorizontal="true"><dc:Bounds x="40" y="810" width="2390" height="180" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_SCM_di" bpmnElement="Start_SCM"><dc:Bounds x="100" y="102" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="72" y="82" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckInventory_di" bpmnElement="Task_CheckInventory"><dc:Bounds x="190" y="85" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_StockSafety_di" bpmnElement="GW_StockSafety" isMarkerVisible="true"><dc:Bounds x="390" y="98" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="377" y="76" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_SCM_Done_di" bpmnElement="End_SCM_Done"><dc:Bounds x="394" y="185" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="374" y="227" width="77" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CreatePR_di" bpmnElement="Task_CreatePR"><dc:Bounds x="500" y="85" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReviewPR_di" bpmnElement="Task_ReviewPR"><dc:Bounds x="500" y="340" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_PRAvail_di" bpmnElement="GW_PRAvail" isMarkerVisible="true"><dc:Bounds x="700" y="353" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="692" y="331" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_SCM_Reject_di" bpmnElement="End_SCM_Reject"><dc:Bounds x="810" y="357" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="793" y="399" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveGoods_di" bpmnElement="Task_ReceiveGoods"><dc:Bounds x="1480" y="85" width="150" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_QualityInspect_di" bpmnElement="GW_QualityInspect" isMarkerVisible="true"><dc:Bounds x="1700" y="98" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1687" y="76" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StoreInCold_di" bpmnElement="Task_StoreInCold"><dc:Bounds x="1810" y="85" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Store_Done_di" bpmnElement="End_Store_Done"><dc:Bounds x="2020" y="102" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1992" y="144" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RejectGoods_di" bpmnElement="Task_RejectGoods"><dc:Bounds x="1810" y="180" width="140" height="60" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Store_Fail_di" bpmnElement="End_Store_Fail"><dc:Bounds x="2020" y="192" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1996" y="234" width="84" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_HO_di" bpmnElement="Start_HO"><dc:Bounds x="714" y="552" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="702" y="532" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ConsolidatePO_di" bpmnElement="Task_ConsolidatePO"><dc:Bounds x="810" y="535" width="150" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_3WayMatching_di" bpmnElement="Task_3WayMatching"><dc:Bounds x="1810" y="675" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_MatchPass_di" bpmnElement="GW_MatchPass" isMarkerVisible="true"><dc:Bounds x="2010" y="688" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1992" y="660" width="80" height="24" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Acct_Mismatch_di" bpmnElement="End_Acct_Mismatch"><dc:Bounds x="2014" y="740" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1997" y="782" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DisbursePay_di" bpmnElement="Task_DisbursePay"><dc:Bounds x="2120" y="675" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Acct_Paid_di" bpmnElement="End_Acct_Paid"><dc:Bounds x="2330" y="692" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="2296" y="734" width="105" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Supp_di" bpmnElement="Start_Supp"><dc:Bounds x="862" y="882" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="850" y="862" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PackGoods_di" bpmnElement="Task_PackGoods"><dc:Bounds x="960" y="865" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ColdTruckDelivery_di" bpmnElement="Task_ColdTruckDelivery"><dc:Bounds x="1170" y="865" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Supp_Done_di" bpmnElement="End_Supp_Done"><dc:Bounds x="1380" y="882" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1366" y="924" width="63" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_S1_di" bpmnElement="F_S1"><di:waypoint x="136" y="120" /><di:waypoint x="190" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S2_di" bpmnElement="F_S2"><di:waypoint x="330" y="120" /><di:waypoint x="390" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Stk_Yes_di" bpmnElement="F_Stk_Yes"><di:waypoint x="434" y="120" /><di:waypoint x="500" y="120" /><bpmndi:BPMNLabel><dc:Bounds x="450" y="102" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Stk_No_di" bpmnElement="F_Stk_No"><di:waypoint x="412" y="142" /><di:waypoint x="412" y="185" /><bpmndi:BPMNLabel><dc:Bounds x="420" y="156" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S3_di" bpmnElement="F_S3"><di:waypoint x="570" y="155" /><di:waypoint x="570" y="340" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S4_di" bpmnElement="F_S4"><di:waypoint x="640" y="375" /><di:waypoint x="700" y="375" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_PR_Approve_di" bpmnElement="F_PR_Approve"><di:waypoint x="722" y="353" /><di:waypoint x="722" y="120" /><di:waypoint x="1480" y="120" /><bpmndi:BPMNLabel><dc:Bounds x="1082" y="102" width="38" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_PR_Rej_di" bpmnElement="F_PR_Rej"><di:waypoint x="744" y="375" /><di:waypoint x="810" y="375" /><bpmndi:BPMNLabel><dc:Bounds x="760" y="357" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S10_di" bpmnElement="F_S10"><di:waypoint x="1630" y="120" /><di:waypoint x="1700" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Qual_Pass_di" bpmnElement="F_Qual_Pass"><di:waypoint x="1744" y="120" /><di:waypoint x="1810" y="120" /><bpmndi:BPMNLabel><dc:Bounds x="1760" y="102" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Qual_Fail_di" bpmnElement="F_Qual_Fail"><di:waypoint x="1722" y="142" /><di:waypoint x="1722" y="210" /><di:waypoint x="1810" y="210" /><bpmndi:BPMNLabel><dc:Bounds x="1748" y="192" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S11_di" bpmnElement="F_S11"><di:waypoint x="1950" y="120" /><di:waypoint x="2020" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S_Fail_di" bpmnElement="F_S_Fail"><di:waypoint x="1950" y="210" /><di:waypoint x="2020" y="210" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FHO1_di" bpmnElement="FHO1"><di:waypoint x="750" y="570" /><di:waypoint x="810" y="570" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FHO2_di" bpmnElement="FHO2"><di:waypoint x="960" y="570" /><di:waypoint x="1880" y="570" /><di:waypoint x="1880" y="675" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S12_di" bpmnElement="F_S12"><di:waypoint x="1950" y="710" /><di:waypoint x="2010" y="710" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Match_Yes_di" bpmnElement="F_Match_Yes"><di:waypoint x="2054" y="710" /><di:waypoint x="2120" y="710" /><bpmndi:BPMNLabel><dc:Bounds x="2070" y="692" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Match_No_di" bpmnElement="F_Match_No"><di:waypoint x="2032" y="732" /><di:waypoint x="2032" y="740" /><bpmndi:BPMNLabel><dc:Bounds x="2040" y="729" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_S13_di" bpmnElement="F_S13"><di:waypoint x="2260" y="710" /><di:waypoint x="2330" y="710" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FSP1_di" bpmnElement="FSP1"><di:waypoint x="898" y="900" /><di:waypoint x="960" y="900" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Supp1_di" bpmnElement="F_Supp1"><di:waypoint x="1100" y="900" /><di:waypoint x="1170" y="900" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FSP2_di" bpmnElement="FSP2"><di:waypoint x="1310" y="900" /><di:waypoint x="1380" y="900" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_PR_Pass_di" bpmnElement="M_PR_Pass"><di:waypoint x="570" y="410" /><di:waypoint x="570" y="570" /><di:waypoint x="714" y="570" /><bpmndi:BPMNLabel><dc:Bounds x="578" y="483" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_PO_di" bpmnElement="M_PO"><di:waypoint x="885" y="605" /><di:waypoint x="885" y="882" /><bpmndi:BPMNLabel><dc:Bounds x="893" y="736" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_Delivery_di" bpmnElement="M_Delivery"><di:waypoint x="1240" y="865" /><di:waypoint x="1240" y="120" /><di:waypoint x="1480" y="120" /><bpmndi:BPMNLabel><dc:Bounds x="1248" y="486" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="M_GRN_di" bpmnElement="M_GRN"><di:waypoint x="1880" y="155" /><di:waypoint x="1880" y="168" /><di:waypoint x="2090" y="168" /><di:waypoint x="2090" y="655" /><di:waypoint x="1880" y="655" /><di:waypoint x="1880" y="675" /><bpmndi:BPMNLabel><dc:Bounds x="2098" y="404" width="112" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </bpmn:definitions>
