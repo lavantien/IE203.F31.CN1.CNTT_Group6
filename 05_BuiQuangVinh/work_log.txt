@@ -6,3 +6,4 @@
 2026-08-20T07:07:00: docs(p4): tinh toan thoi gian chu ky (Cycle Time)
 2026-08-22T08:44:00: update(p4): lap bang tinh chi phi va chat luong
 2026-08-24T19:05:00: fix(p4): sua lai cong thuc tinh toan cho khoi XOR
+2026-08-25T23:45:00: docs(p4): tao ma tran RACI
