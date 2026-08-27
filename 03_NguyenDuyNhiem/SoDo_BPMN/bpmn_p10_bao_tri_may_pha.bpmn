@@ -1,4 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_1">
-  <bpmn:process id="Process_1" isExecutable="false" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_P10" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_P10">
+    <bpmn:participant id="Pool_OEM" name="NHÀ CUNG CẤP LINH KIỆN" processRef="Process_OEM" />
+    <bpmn:participant id="Pool_HL" name="HIGHLANDS COFFEE - BẢO TRÌ &amp; HIỆU CHUẨN THIẾT BỊ QUẦY BAR" processRef="Process_HL_P10" />
+    <bpmn:messageFlow id="MF_OrderPart" name="Gửi đơn linh kiện" sourceRef="Task_OrderPart" targetRef="Task_OEM_Supply" />
+    <bpmn:messageFlow id="MF_DeliverPart" name="Giao linh kiện &amp; ron" sourceRef="Task_OEM_Supply" targetRef="Task_ReplaceParts" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_OEM" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_OEM">
+      <bpmn:lane id="Lane_OEM" name="Đại Lý Chính Hãng">
+        <bpmn:flowNodeRef>Task_OEM_Supply</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:task id="Task_OEM_Supply" name="Xuất kho &amp; giao vận&#10;linh kiện chính hãng" />
+  </bpmn:process>
+  <bpmn:process id="Process_HL_P10" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_HL_P10">
+      <bpmn:lane id="Lane_Barista" name="Barista Trưởng (Lead Barista)">
+        <bpmn:flowNodeRef>Start_P10</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DailyFlush</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_Anomaly</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MonthlySched</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_IssueTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ReqMerge</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Tech" name="Kỹ Thuật Viên Bảo Trì (Maintenance Dept)">
+        <bpmn:flowNodeRef>Task_Arrive</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ForkDiag</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckPressure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckTemp</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckWater</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_JoinDiag</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ParamPass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_PartCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OrderPart</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReplaceParts</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ReplaceMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Calibrate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_LoopJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_TestShot</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_TastePass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FineTune</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Store" name="Cửa Hàng Trưởng (Store Manager)">
+        <bpmn:flowNodeRef>Task_InspectBar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_StoreSign</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReInspect</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SignReport</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_P10_Success</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_P10" name="Kế hoạch bảo trì&#10;đã đến hạn"><bpmn:outgoing>F_P10_1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_DailyFlush" name="Vệ sinh backflush &amp;&#10;kiểm tra áp suất"><bpmn:incoming>F_P10_1</bpmn:incoming><bpmn:outgoing>F_P10_2</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_Anomaly" name="Phát hiện sự cố&#10;bất thường?"><bpmn:incoming>F_P10_2</bpmn:incoming><bpmn:outgoing>F_Ano_No</bpmn:outgoing><bpmn:outgoing>F_Ano_Yes</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_MonthlySched" name="Đăng ký lịch audit&#10;bảo trì định kỳ"><bpmn:incoming>F_Ano_No</bpmn:incoming><bpmn:outgoing>F_M_Merge</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_IssueTicket" name="Tạo ticket sửa chữa&#10;khẩn cấp trên app"><bpmn:incoming>F_Ano_Yes</bpmn:incoming><bpmn:outgoing>F_I_Merge</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_ReqMerge"><bpmn:incoming>F_M_Merge</bpmn:incoming><bpmn:incoming>F_I_Merge</bpmn:incoming><bpmn:outgoing>F_P10_3</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_Arrive" name="Kỹ thuật viên tiếp nhận&#10;&amp; kiểm tra máy"><bpmn:incoming>F_P10_3</bpmn:incoming><bpmn:outgoing>F_P10_4</bpmn:outgoing></bpmn:task>
+    <bpmn:parallelGateway id="GW_ForkDiag" name="Phân luồng kiểm tra&#10;đa thông số"><bpmn:incoming>F_P10_4</bpmn:incoming><bpmn:outgoing>F_Diag_P</bpmn:outgoing><bpmn:outgoing>F_Diag_T</bpmn:outgoing><bpmn:outgoing>F_Diag_W</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:task id="Task_CheckPressure" name="Đo áp suất nồi hơi (1.2 bar)&#10;&amp; bơm chiết xuất (9 bar)"><bpmn:incoming>F_Diag_P</bpmn:incoming><bpmn:outgoing>F_Join_P</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_CheckTemp" name="Đo nhiệt độ nước (93°C)&#10;&amp; thay ron cao su"><bpmn:incoming>F_Diag_T</bpmn:incoming><bpmn:outgoing>F_Join_T</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_CheckWater" name="Đo TDS nước (&lt;50ppm)&#10;&amp; kiểm tra lõi lọc"><bpmn:incoming>F_Diag_W</bpmn:incoming><bpmn:outgoing>F_Join_W</bpmn:outgoing></bpmn:task>
+    <bpmn:parallelGateway id="GW_JoinDiag" name="Đồng bộ kết quả&#10;kiểm tra"><bpmn:incoming>F_Join_P</bpmn:incoming><bpmn:incoming>F_Join_T</bpmn:incoming><bpmn:incoming>F_Join_W</bpmn:incoming><bpmn:outgoing>F_P10_5</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="GW_ParamPass" name="Các thông số kỹ thuật&#10;đạt chuẩn?"><bpmn:incoming>F_P10_5</bpmn:incoming><bpmn:outgoing>F_Param_Pass</bpmn:outgoing><bpmn:outgoing>F_Param_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="GW_PartCheck" name="Có sẵn linh kiện&#10;trong hộp đồ nghề?"><bpmn:incoming>F_Param_Fail</bpmn:incoming><bpmn:outgoing>F_Part_Stock</bpmn:outgoing><bpmn:outgoing>F_Part_Order</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_OrderPart" name="Gửi đơn yêu cầu&#10;linh kiện khẩn cấp"><bpmn:incoming>F_Part_Order</bpmn:incoming><bpmn:outgoing>F_Wait_Deliver</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ReplaceParts" name="Thay thế linh kiện, ron&#10;&amp; vệ sinh nồi hơi"><bpmn:incoming>F_Part_Stock</bpmn:incoming><bpmn:incoming>F_Wait_Deliver</bpmn:incoming><bpmn:outgoing>F_Rep_Done</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_ReplaceMerge"><bpmn:incoming>F_Param_Pass</bpmn:incoming><bpmn:incoming>F_Rep_Done</bpmn:incoming><bpmn:outgoing>F_P10_6</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_Calibrate" name="Hiệu chuẩn áp suất &amp;&#10;độ mịn máy xay hạt"><bpmn:incoming>F_P10_6</bpmn:incoming><bpmn:outgoing>F_P10_7</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_LoopJoin"><bpmn:incoming>F_P10_7</bpmn:incoming><bpmn:incoming>F_Fine_Back</bpmn:incoming><bpmn:incoming>F_Re_Back</bpmn:incoming><bpmn:outgoing>F_To_Shot</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_TestShot" name="Chiết xuất 3 shot espresso&#10;mẫu &amp; đo tỷ lệ TDS"><bpmn:incoming>F_To_Shot</bpmn:incoming><bpmn:outgoing>F_P10_8</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_TastePass" name="Shot cà phê đạt&#10;chuẩn hương vị?"><bpmn:incoming>F_P10_8</bpmn:incoming><bpmn:outgoing>F_Taste_Pass</bpmn:outgoing><bpmn:outgoing>F_Taste_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_FineTune" name="Tinh chỉnh lại cỡ xay&#10;&amp; nhiệt độ nước"><bpmn:incoming>F_Taste_Fail</bpmn:incoming><bpmn:outgoing>F_Fine_Back</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_InspectBar" name="Cửa hàng trưởng test&#10;thử vị &amp; nghiệm thu"><bpmn:incoming>F_Taste_Pass</bpmn:incoming><bpmn:outgoing>F_P10_9</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_StoreSign" name="Cửa hàng trưởng&#10;đồng ý nghiệm thu?"><bpmn:incoming>F_P10_9</bpmn:incoming><bpmn:outgoing>F_Sign_Pass</bpmn:outgoing><bpmn:outgoing>F_Sign_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_ReInspect" name="Yêu cầu căn chỉnh lại&#10;thông số chưa đạt"><bpmn:incoming>F_Sign_Fail</bpmn:incoming><bpmn:outgoing>F_Re_Back</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_SignReport" name="Ký biên bản bảo trì &amp;&#10;cập nhật sổ theo dõi"><bpmn:incoming>F_Sign_Pass</bpmn:incoming><bpmn:outgoing>F_P10_10</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_P10_Success" name="Máy pha cà phê đã&#10;bảo trì đạt chuẩn"><bpmn:incoming>F_P10_10</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_P10_1" sourceRef="Start_P10" targetRef="Task_DailyFlush" />
+    <bpmn:sequenceFlow id="F_P10_2" sourceRef="Task_DailyFlush" targetRef="GW_Anomaly" />
+    <bpmn:sequenceFlow id="F_Ano_No" name="Bình thường" sourceRef="GW_Anomaly" targetRef="Task_MonthlySched" />
+    <bpmn:sequenceFlow id="F_Ano_Yes" name="Có sự cố" sourceRef="GW_Anomaly" targetRef="Task_IssueTicket" />
+    <bpmn:sequenceFlow id="F_M_Merge" sourceRef="Task_MonthlySched" targetRef="GW_ReqMerge" />
+    <bpmn:sequenceFlow id="F_I_Merge" sourceRef="Task_IssueTicket" targetRef="GW_ReqMerge" />
+    <bpmn:sequenceFlow id="F_P10_3" sourceRef="GW_ReqMerge" targetRef="Task_Arrive" />
+    <bpmn:sequenceFlow id="F_P10_4" sourceRef="Task_Arrive" targetRef="GW_ForkDiag" />
+    <bpmn:sequenceFlow id="F_Diag_P" sourceRef="GW_ForkDiag" targetRef="Task_CheckPressure" />
+    <bpmn:sequenceFlow id="F_Diag_T" sourceRef="GW_ForkDiag" targetRef="Task_CheckTemp" />
+    <bpmn:sequenceFlow id="F_Diag_W" sourceRef="GW_ForkDiag" targetRef="Task_CheckWater" />
+    <bpmn:sequenceFlow id="F_Join_P" sourceRef="Task_CheckPressure" targetRef="GW_JoinDiag" />
+    <bpmn:sequenceFlow id="F_Join_T" sourceRef="Task_CheckTemp" targetRef="GW_JoinDiag" />
+    <bpmn:sequenceFlow id="F_Join_W" sourceRef="Task_CheckWater" targetRef="GW_JoinDiag" />
+    <bpmn:sequenceFlow id="F_P10_5" sourceRef="GW_JoinDiag" targetRef="GW_ParamPass" />
+    <bpmn:sequenceFlow id="F_Param_Pass" name="Đạt chuẩn" sourceRef="GW_ParamPass" targetRef="GW_ReplaceMerge" />
+    <bpmn:sequenceFlow id="F_Param_Fail" name="Cần thay thế" sourceRef="GW_ParamPass" targetRef="GW_PartCheck" />
+    <bpmn:sequenceFlow id="F_Part_Stock" name="Có sẵn" sourceRef="GW_PartCheck" targetRef="Task_ReplaceParts" />
+    <bpmn:sequenceFlow id="F_Part_Order" name="Cần đặt hàng" sourceRef="GW_PartCheck" targetRef="Task_OrderPart" />
+    <bpmn:sequenceFlow id="F_Wait_Deliver" sourceRef="Task_OrderPart" targetRef="Task_ReplaceParts" />
+    <bpmn:sequenceFlow id="F_Rep_Done" sourceRef="Task_ReplaceParts" targetRef="GW_ReplaceMerge" />
+    <bpmn:sequenceFlow id="F_P10_6" sourceRef="GW_ReplaceMerge" targetRef="Task_Calibrate" />
+    <bpmn:sequenceFlow id="F_P10_7" sourceRef="Task_Calibrate" targetRef="GW_LoopJoin" />
+    <bpmn:sequenceFlow id="F_To_Shot" sourceRef="GW_LoopJoin" targetRef="Task_TestShot" />
+    <bpmn:sequenceFlow id="F_P10_8" sourceRef="Task_TestShot" targetRef="GW_TastePass" />
+    <bpmn:sequenceFlow id="F_Taste_Pass" name="Đạt chuẩn" sourceRef="GW_TastePass" targetRef="Task_InspectBar" />
+    <bpmn:sequenceFlow id="F_Taste_Fail" name="Chưa đạt" sourceRef="GW_TastePass" targetRef="Task_FineTune" />
+    <bpmn:sequenceFlow id="F_Fine_Back" name="Chỉnh lại" sourceRef="Task_FineTune" targetRef="GW_LoopJoin" />
+    <bpmn:sequenceFlow id="F_P10_9" sourceRef="Task_InspectBar" targetRef="GW_StoreSign" />
+    <bpmn:sequenceFlow id="F_Sign_Pass" name="Đồng ý ký" sourceRef="GW_StoreSign" targetRef="Task_SignReport" />
+    <bpmn:sequenceFlow id="F_Sign_Fail" name="Chưa đạt chuẩn" sourceRef="GW_StoreSign" targetRef="Task_ReInspect" />
+    <bpmn:sequenceFlow id="F_Re_Back" name="Căn chỉnh lại" sourceRef="Task_ReInspect" targetRef="GW_LoopJoin" />
+    <bpmn:sequenceFlow id="F_P10_10" sourceRef="Task_SignReport" targetRef="End_P10_Success" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P10">
+    <bpmndi:BPMNPlane id="BPMNPlane_P10" bpmnElement="Collaboration_P10">
+      <bpmndi:BPMNShape id="Pool_OEM_di" bpmnElement="Pool_OEM" isHorizontal="true"><dc:Bounds x="40" y="40" width="3000" height="170" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_OEM_di" bpmnElement="Lane_OEM" isHorizontal="true"><dc:Bounds x="70" y="40" width="2970" height="170" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OEM_Supply_di" bpmnElement="Task_OEM_Supply"><dc:Bounds x="1480" y="90" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pool_HL_di" bpmnElement="Pool_HL" isHorizontal="true"><dc:Bounds x="40" y="240" width="3000" height="760" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Barista_di" bpmnElement="Lane_Barista" isHorizontal="true"><dc:Bounds x="70" y="240" width="2970" height="210" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Tech_di" bpmnElement="Lane_Tech" isHorizontal="true"><dc:Bounds x="70" y="450" width="2970" height="345" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Store_di" bpmnElement="Lane_Store" isHorizontal="true"><dc:Bounds x="70" y="795" width="2970" height="205" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_P10_di" bpmnElement="Start_P10"><dc:Bounds x="120" y="322" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="95" y="365" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DailyFlush_di" bpmnElement="Task_DailyFlush"><dc:Bounds x="210" y="305" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_Anomaly_di" bpmnElement="GW_Anomaly" isMarkerVisible="true"><dc:Bounds x="400" y="318" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="330" y="265" width="110" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MonthlySched_di" bpmnElement="Task_MonthlySched"><dc:Bounds x="520" y="265" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_IssueTicket_di" bpmnElement="Task_IssueTicket"><dc:Bounds x="520" y="355" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ReqMerge_di" bpmnElement="GW_ReqMerge" isMarkerVisible="true"><dc:Bounds x="710" y="318" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Arrive_di" bpmnElement="Task_Arrive"><dc:Bounds x="800" y="525" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ForkDiag_di" bpmnElement="GW_ForkDiag"><dc:Bounds x="990" y="538" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="955" y="490" width="115" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckPressure_di" bpmnElement="Task_CheckPressure"><dc:Bounds x="1080" y="470" width="145" height="60" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckTemp_di" bpmnElement="Task_CheckTemp"><dc:Bounds x="1080" y="540" width="145" height="60" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckWater_di" bpmnElement="Task_CheckWater"><dc:Bounds x="1080" y="610" width="145" height="60" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_JoinDiag_di" bpmnElement="GW_JoinDiag"><dc:Bounds x="1270" y="538" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1235" y="492" width="80" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ParamPass_di" bpmnElement="GW_ParamPass" isMarkerVisible="true"><dc:Bounds x="1370" y="538" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1335" y="490" width="115" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_PartCheck_di" bpmnElement="GW_PartCheck" isMarkerVisible="true"><dc:Bounds x="1370" y="660" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1270" y="662" width="95" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OrderPart_di" bpmnElement="Task_OrderPart"><dc:Bounds x="1480" y="710" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReplaceParts_di" bpmnElement="Task_ReplaceParts"><dc:Bounds x="1660" y="650" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ReplaceMerge_di" bpmnElement="GW_ReplaceMerge" isMarkerVisible="true"><dc:Bounds x="1840" y="538" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Calibrate_di" bpmnElement="Task_Calibrate"><dc:Bounds x="1920" y="525" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_LoopJoin_di" bpmnElement="GW_LoopJoin" isMarkerVisible="true"><dc:Bounds x="2120" y="538" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_TestShot_di" bpmnElement="Task_TestShot"><dc:Bounds x="2210" y="525" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_TastePass_di" bpmnElement="GW_TastePass" isMarkerVisible="true"><dc:Bounds x="2400" y="538" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="2365" y="490" width="115" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FineTune_di" bpmnElement="Task_FineTune"><dc:Bounds x="2210" y="640" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InspectBar_di" bpmnElement="Task_InspectBar"><dc:Bounds x="2490" y="855" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_StoreSign_di" bpmnElement="GW_StoreSign" isMarkerVisible="true"><dc:Bounds x="2680" y="868" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="2645" y="820" width="115" height="40" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReInspect_di" bpmnElement="Task_ReInspect"><dc:Bounds x="2540" y="930" width="140" height="55" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SignReport_di" bpmnElement="Task_SignReport"><dc:Bounds x="2780" y="855" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_P10_Success_di" bpmnElement="End_P10_Success"><dc:Bounds x="2960" y="872" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="2935" y="915" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_P10_1_di" bpmnElement="F_P10_1"><di:waypoint x="156" y="340" /><di:waypoint x="210" y="340" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_2_di" bpmnElement="F_P10_2"><di:waypoint x="350" y="340" /><di:waypoint x="400" y="340" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Ano_No_di" bpmnElement="F_Ano_No"><di:waypoint x="422" y="318" /><di:waypoint x="422" y="297" /><di:waypoint x="520" y="297" /><bpmndi:BPMNLabel><dc:Bounds x="445" y="278" width="65" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Ano_Yes_di" bpmnElement="F_Ano_Yes"><di:waypoint x="422" y="362" /><di:waypoint x="422" y="387" /><di:waypoint x="520" y="387" /><bpmndi:BPMNLabel><dc:Bounds x="445" y="370" width="55" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_M_Merge_di" bpmnElement="F_M_Merge"><di:waypoint x="660" y="297" /><di:waypoint x="732" y="297" /><di:waypoint x="732" y="318" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_I_Merge_di" bpmnElement="F_I_Merge"><di:waypoint x="660" y="387" /><di:waypoint x="732" y="387" /><di:waypoint x="732" y="362" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_3_di" bpmnElement="F_P10_3"><di:waypoint x="754" y="340" /><di:waypoint x="775" y="340" /><di:waypoint x="775" y="560" /><di:waypoint x="800" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_4_di" bpmnElement="F_P10_4"><di:waypoint x="940" y="560" /><di:waypoint x="990" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Diag_P_di" bpmnElement="F_Diag_P"><di:waypoint x="1012" y="538" /><di:waypoint x="1012" y="500" /><di:waypoint x="1080" y="500" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Diag_T_di" bpmnElement="F_Diag_T"><di:waypoint x="1034" y="560" /><di:waypoint x="1080" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Diag_W_di" bpmnElement="F_Diag_W"><di:waypoint x="1012" y="582" /><di:waypoint x="1012" y="640" /><di:waypoint x="1080" y="640" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Join_P_di" bpmnElement="F_Join_P"><di:waypoint x="1225" y="500" /><di:waypoint x="1292" y="500" /><di:waypoint x="1292" y="538" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Join_T_di" bpmnElement="F_Join_T"><di:waypoint x="1225" y="560" /><di:waypoint x="1270" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Join_W_di" bpmnElement="F_Join_W"><di:waypoint x="1225" y="640" /><di:waypoint x="1292" y="640" /><di:waypoint x="1292" y="582" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_5_di" bpmnElement="F_P10_5"><di:waypoint x="1314" y="560" /><di:waypoint x="1370" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Param_Pass_di" bpmnElement="F_Param_Pass"><di:waypoint x="1414" y="560" /><di:waypoint x="1840" y="560" /><bpmndi:BPMNLabel><dc:Bounds x="1600" y="542" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Param_Fail_di" bpmnElement="F_Param_Fail"><di:waypoint x="1392" y="582" /><di:waypoint x="1392" y="660" /><bpmndi:BPMNLabel><dc:Bounds x="1395" y="615" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Part_Stock_di" bpmnElement="F_Part_Stock"><di:waypoint x="1414" y="682" /><di:waypoint x="1660" y="682" /><bpmndi:BPMNLabel><dc:Bounds x="1510" y="664" width="40" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Part_Order_di" bpmnElement="F_Part_Order"><di:waypoint x="1392" y="704" /><di:waypoint x="1392" y="742" /><di:waypoint x="1480" y="742" /><bpmndi:BPMNLabel><dc:Bounds x="1398" y="722" width="75" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Wait_Deliver_di" bpmnElement="F_Wait_Deliver"><di:waypoint x="1620" y="742" /><di:waypoint x="1640" y="742" /><di:waypoint x="1640" y="695" /><di:waypoint x="1660" y="695" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Rep_Done_di" bpmnElement="F_Rep_Done"><di:waypoint x="1800" y="682" /><di:waypoint x="1862" y="682" /><di:waypoint x="1862" y="582" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_6_di" bpmnElement="F_P10_6"><di:waypoint x="1884" y="560" /><di:waypoint x="1920" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_7_di" bpmnElement="F_P10_7"><di:waypoint x="2060" y="560" /><di:waypoint x="2120" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_To_Shot_di" bpmnElement="F_To_Shot"><di:waypoint x="2164" y="560" /><di:waypoint x="2210" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_8_di" bpmnElement="F_P10_8"><di:waypoint x="2350" y="560" /><di:waypoint x="2400" y="560" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Taste_Pass_di" bpmnElement="F_Taste_Pass"><di:waypoint x="2444" y="560" /><di:waypoint x="2465" y="560" /><di:waypoint x="2465" y="890" /><di:waypoint x="2490" y="890" /><bpmndi:BPMNLabel><dc:Bounds x="2470" y="720" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Taste_Fail_di" bpmnElement="F_Taste_Fail"><di:waypoint x="2422" y="582" /><di:waypoint x="2422" y="672" /><di:waypoint x="2350" y="672" /><bpmndi:BPMNLabel><dc:Bounds x="2425" y="620" width="50" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Fine_Back_di" bpmnElement="F_Fine_Back"><di:waypoint x="2280" y="705" /><di:waypoint x="2280" y="735" /><di:waypoint x="2142" y="735" /><di:waypoint x="2142" y="582" /><bpmndi:BPMNLabel><dc:Bounds x="2190" y="715" width="50" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_9_di" bpmnElement="F_P10_9"><di:waypoint x="2630" y="890" /><di:waypoint x="2680" y="890" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Sign_Pass_di" bpmnElement="F_Sign_Pass"><di:waypoint x="2724" y="890" /><di:waypoint x="2780" y="890" /><bpmndi:BPMNLabel><dc:Bounds x="2724" y="870" width="55" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Sign_Fail_di" bpmnElement="F_Sign_Fail"><di:waypoint x="2702" y="912" /><di:waypoint x="2702" y="957" /><di:waypoint x="2680" y="957" /><bpmndi:BPMNLabel><dc:Bounds x="2705" y="928" width="85" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Re_Back_di" bpmnElement="F_Re_Back"><di:waypoint x="2610" y="985" /><di:waypoint x="2610" y="1005" /><di:waypoint x="2142" y="1005" /><di:waypoint x="2142" y="582" /><bpmndi:BPMNLabel><dc:Bounds x="2350" y="987" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_P10_10_di" bpmnElement="F_P10_10"><di:waypoint x="2910" y="890" /><di:waypoint x="2960" y="890" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_OrderPart_di" bpmnElement="MF_OrderPart"><di:waypoint x="1530" y="710" /><di:waypoint x="1530" y="160" /><bpmndi:BPMNLabel><dc:Bounds x="1440" y="340" width="80" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_DeliverPart_di" bpmnElement="MF_DeliverPart"><di:waypoint x="1570" y="160" /><di:waypoint x="1570" y="620" /><di:waypoint x="1730" y="620" /><di:waypoint x="1730" y="650" /><bpmndi:BPMNLabel><dc:Bounds x="1580" y="420" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </bpmn:definitions>
