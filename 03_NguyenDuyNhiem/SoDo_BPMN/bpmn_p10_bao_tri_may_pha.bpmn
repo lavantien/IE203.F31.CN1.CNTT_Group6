@@ -9,10 +9,23 @@
   <bpmn:process id="Process_OEM" isExecutable="false">
     <bpmn:laneSet id="LaneSet_OEM">
       <bpmn:lane id="Lane_OEM" name="Đại Lý Chính Hãng">
+        <bpmn:flowNodeRef>Start_OEM</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_OEM_Supply</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_OEM</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:task id="Task_OEM_Supply" name="Xuất kho &amp; giao vận&#10;linh kiện chính hãng" />
+    <bpmn:startEvent id="Start_OEM" name="Đơn đặt linh kiện&#10;đã được gửi">
+      <bpmn:outgoing>F_OEM_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_OEM_Supply" name="Xuất kho &amp; giao vận&#10;linh kiện chính hãng">
+      <bpmn:incoming>F_OEM_1</bpmn:incoming>
+      <bpmn:outgoing>F_OEM_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_OEM" name="Linh kiện đã&#10;bàn giao">
+      <bpmn:incoming>F_OEM_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_OEM_1" sourceRef="Start_OEM" targetRef="Task_OEM_Supply" />
+    <bpmn:sequenceFlow id="F_OEM_2" sourceRef="Task_OEM_Supply" targetRef="End_OEM" />
   </bpmn:process>
   <bpmn:process id="Process_HL_P10" isExecutable="false">
     <bpmn:laneSet id="LaneSet_HL_P10">
@@ -115,7 +128,9 @@
     <bpmndi:BPMNPlane id="BPMNPlane_P10" bpmnElement="Collaboration_P10">
       <bpmndi:BPMNShape id="Pool_OEM_di" bpmnElement="Pool_OEM" isHorizontal="true"><dc:Bounds x="40" y="40" width="3000" height="170" /></bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_OEM_di" bpmnElement="Lane_OEM" isHorizontal="true"><dc:Bounds x="70" y="40" width="2970" height="170" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_OEM_di" bpmnElement="Start_OEM"><dc:Bounds x="1380" y="107" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1355" y="148" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_OEM_Supply_di" bpmnElement="Task_OEM_Supply"><dc:Bounds x="1480" y="90" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_OEM_di" bpmnElement="End_OEM"><dc:Bounds x="1680" y="107" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1660" y="148" width="80" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Pool_HL_di" bpmnElement="Pool_HL" isHorizontal="true"><dc:Bounds x="40" y="240" width="3000" height="760" /></bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Barista_di" bpmnElement="Lane_Barista" isHorizontal="true"><dc:Bounds x="70" y="240" width="2970" height="210" /></bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Tech_di" bpmnElement="Lane_Tech" isHorizontal="true"><dc:Bounds x="70" y="450" width="2970" height="345" /></bpmndi:BPMNShape>
@@ -182,6 +197,8 @@
       <bpmndi:BPMNEdge id="F_P10_10_di" bpmnElement="F_P10_10"><di:waypoint x="2910" y="890" /><di:waypoint x="2960" y="890" /></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="MF_OrderPart_di" bpmnElement="MF_OrderPart"><di:waypoint x="1530" y="710" /><di:waypoint x="1530" y="160" /><bpmndi:BPMNLabel><dc:Bounds x="1440" y="340" width="80" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="MF_DeliverPart_di" bpmnElement="MF_DeliverPart"><di:waypoint x="1570" y="160" /><di:waypoint x="1570" y="620" /><di:waypoint x="1730" y="620" /><di:waypoint x="1730" y="650" /><bpmndi:BPMNLabel><dc:Bounds x="1580" y="420" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_OEM_1_di" bpmnElement="F_OEM_1"><di:waypoint x="1416" y="125" /><di:waypoint x="1480" y="125" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_OEM_2_di" bpmnElement="F_OEM_2"><di:waypoint x="1620" y="125" /><di:waypoint x="1680" y="125" /></bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
