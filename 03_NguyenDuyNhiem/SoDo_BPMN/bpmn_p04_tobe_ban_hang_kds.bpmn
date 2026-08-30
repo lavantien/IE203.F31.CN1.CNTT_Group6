@@ -1,0 +1,156 @@
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_P04_ToBe" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_P04_ToBe">
+    <bpmn:participant id="Pool_Cust_ToBe" name="Khách Hàng" processRef="Process_Cust_ToBe" />
+    <bpmn:participant id="Pool_HL_ToBe" name="HIGHLANDS COFFEE (HỆ THỐNG SỐ HÓA)" processRef="Process_HL_ToBe" />
+    <bpmn:messageFlow id="MT_SendOrder" name="Gửi giỏ hàng" sourceRef="Task_SubmitOrder" targetRef="Task_AutoVerifyStock" />
+    <bpmn:messageFlow id="MT_PayReq" name="Tạo VietQR" sourceRef="Task_AutoLockStock" targetRef="Task_DigitalPayInstant" />
+    <bpmn:messageFlow id="MT_PushReady" name="Push App &amp; TV" sourceRef="Task_AutoPushNotify" targetRef="Task_ReceiveNotify" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Cust_ToBe" isExecutable="false">
+    <bpmn:startEvent id="Start_ToBe" name="Có nhu cầu gọi món"><bpmn:outgoing>FT1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:exclusiveGateway id="GW_ChannelChoice" name="Kênh đặt món?"><bpmn:incoming>FT1</bpmn:incoming><bpmn:outgoing>FT_Ch_Kiosk</bpmn:outgoing><bpmn:outgoing>FT_Ch_App</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_KioskOrder" name="Tự đặt tại màn hình Kiosk"><bpmn:incoming>FT_Ch_Kiosk</bpmn:incoming><bpmn:outgoing>FT_Kiosk_Join</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_AppPreOrder" name="Đặt trước qua Mobile App"><bpmn:incoming>FT_Ch_App</bpmn:incoming><bpmn:outgoing>FT_App_Join</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_PayChannelJoin"><bpmn:incoming>FT_Kiosk_Join</bpmn:incoming><bpmn:incoming>FT_App_Join</bpmn:incoming><bpmn:outgoing>FT2</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_SubmitOrder" name="Xác nhận giỏ hàng"><bpmn:incoming>FT2</bpmn:incoming><bpmn:outgoing>FT3</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_DigitalPayInstant" name="Thanh toán VietQR / Thẻ"><bpmn:incoming>FT3</bpmn:incoming><bpmn:outgoing>FT4</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_FindSeat" name="Khách tìm bàn ngồi &amp; xem TV"><bpmn:incoming>FT4</bpmn:incoming><bpmn:outgoing>FT5</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ReceiveNotify" name="Nhận thông báo món đã xong"><bpmn:incoming>FT5</bpmn:incoming><bpmn:outgoing>FT6</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_PickupSelfService" name="Đến quầy nhận khay đồ"><bpmn:incoming>FT6</bpmn:incoming><bpmn:outgoing>FT7</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_ToBe_Happy" name="Phục vụ hoàn tất"><bpmn:incoming>FT7</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="FT1" sourceRef="Start_ToBe" targetRef="GW_ChannelChoice" />
+    <bpmn:sequenceFlow id="FT_Ch_Kiosk" name="Kiosk" sourceRef="GW_ChannelChoice" targetRef="Task_KioskOrder" />
+    <bpmn:sequenceFlow id="FT_Ch_App" name="App" sourceRef="GW_ChannelChoice" targetRef="Task_AppPreOrder" />
+    <bpmn:sequenceFlow id="FT_Kiosk_Join" sourceRef="Task_KioskOrder" targetRef="GW_PayChannelJoin" />
+    <bpmn:sequenceFlow id="FT_App_Join" sourceRef="Task_AppPreOrder" targetRef="GW_PayChannelJoin" />
+    <bpmn:sequenceFlow id="FT2" sourceRef="GW_PayChannelJoin" targetRef="Task_SubmitOrder" />
+    <bpmn:sequenceFlow id="FT3" sourceRef="Task_SubmitOrder" targetRef="Task_DigitalPayInstant" />
+    <bpmn:sequenceFlow id="FT4" sourceRef="Task_DigitalPayInstant" targetRef="Task_FindSeat" />
+    <bpmn:sequenceFlow id="FT5" sourceRef="Task_FindSeat" targetRef="Task_ReceiveNotify" />
+    <bpmn:sequenceFlow id="FT6" sourceRef="Task_ReceiveNotify" targetRef="Task_PickupSelfService" />
+    <bpmn:sequenceFlow id="FT7" sourceRef="Task_PickupSelfService" targetRef="End_ToBe_Happy" />
+  </bpmn:process>
+  <bpmn:process id="Process_HL_ToBe" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_HL_ToBe">
+      <bpmn:lane id="Lane_Sys_ToBe" name="Hệ Thống Số Hóa (POS / Cloud ERP)">
+        <bpmn:flowNodeRef>Start_Sys</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AutoVerifyStock</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_StockCheckAuto</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Stock_Out</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AutoLockStock</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DispatchToKDS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AutoPushNotify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Sys_Success</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Bar_ToBe" name="Quầy Pha Chế (Điều Phối KDS)">
+        <bpmn:flowNodeRef>Task_ReceiveKDSTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_KDSParallelFork</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Line1_Espresso</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Line2_Freeze</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Line3_Bakery</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_KDSParallelJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_QuickAssemble</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PressKDSComplete</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Sys" name="Nhận order"><bpmn:outgoing>FS1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_AutoVerifyStock" name="Kiểm tra tồn kho tức thì"><bpmn:incoming>FS1</bpmn:incoming><bpmn:outgoing>FS2</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_StockCheckAuto" name="Đủ món?"><bpmn:incoming>FS2</bpmn:incoming><bpmn:outgoing>FS_Stk_Yes</bpmn:outgoing><bpmn:outgoing>FS_Stk_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Stock_Out" name="Báo hết món"><bpmn:incoming>FS_Stk_No</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_AutoLockStock" name="Khóa tồn kho BOM &amp; tạo VietQR"><bpmn:incoming>FS_Stk_Yes</bpmn:incoming><bpmn:outgoing>FS3</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_DispatchToKDS" name="Điều phối đơn sang 3 trạm KDS"><bpmn:incoming>FS3</bpmn:incoming><bpmn:outgoing>FS4</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ReceiveKDSTicket" name="Barista nhận order trên KDS"><bpmn:incoming>FS4</bpmn:incoming><bpmn:outgoing>FS5</bpmn:outgoing></bpmn:task>
+    <bpmn:inclusiveGateway id="GW_KDSParallelFork" name="Phân loại trạm?"><bpmn:incoming>FS5</bpmn:incoming><bpmn:outgoing>FS_Esp</bpmn:outgoing><bpmn:outgoing>FS_Frz</bpmn:outgoing><bpmn:outgoing>FS_Bak</bpmn:outgoing></bpmn:inclusiveGateway>
+    <bpmn:task id="Task_Line1_Espresso" name="Trạm 1: Espresso &amp; Phin"><bpmn:incoming>FS_Esp</bpmn:incoming><bpmn:outgoing>FS_J1</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_Line2_Freeze" name="Trạm 2: Xay Freeze &amp; kem"><bpmn:incoming>FS_Frz</bpmn:incoming><bpmn:outgoing>FS_J2</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_Line3_Bakery" name="Trạm 3: Nướng bánh mì que"><bpmn:incoming>FS_Bak</bpmn:incoming><bpmn:outgoing>FS_J3</bpmn:outgoing></bpmn:task>
+    <bpmn:inclusiveGateway id="GW_KDSParallelJoin" name="Gom đơn KDS"><bpmn:incoming>FS_J1</bpmn:incoming><bpmn:incoming>FS_J2</bpmn:incoming><bpmn:incoming>FS_J3</bpmn:incoming><bpmn:outgoing>FS6</bpmn:outgoing></bpmn:inclusiveGateway>
+    <bpmn:task id="Task_QuickAssemble" name="Gom món &amp; dán tem mã đơn"><bpmn:incoming>FS6</bpmn:incoming><bpmn:outgoing>FS7</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_PressKDSComplete" name="Chạm 'Hoàn tất' trên KDS"><bpmn:incoming>FS7</bpmn:incoming><bpmn:outgoing>FS8</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_AutoPushNotify" name="Tự trừ kho &amp; Push chuông/App"><bpmn:incoming>FS8</bpmn:incoming><bpmn:outgoing>FS9</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Sys_Success" name="Đơn hàng hoàn tất"><bpmn:incoming>FS9</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="FS1" sourceRef="Start_Sys" targetRef="Task_AutoVerifyStock" />
+    <bpmn:sequenceFlow id="FS2" sourceRef="Task_AutoVerifyStock" targetRef="GW_StockCheckAuto" />
+    <bpmn:sequenceFlow id="FS_Stk_Yes" name="Đủ" sourceRef="GW_StockCheckAuto" targetRef="Task_AutoLockStock" />
+    <bpmn:sequenceFlow id="FS_Stk_No" name="Hết" sourceRef="GW_StockCheckAuto" targetRef="End_Stock_Out" />
+    <bpmn:sequenceFlow id="FS3" sourceRef="Task_AutoLockStock" targetRef="Task_DispatchToKDS" />
+    <bpmn:sequenceFlow id="FS4" sourceRef="Task_DispatchToKDS" targetRef="Task_ReceiveKDSTicket" />
+    <bpmn:sequenceFlow id="FS5" sourceRef="Task_ReceiveKDSTicket" targetRef="GW_KDSParallelFork" />
+    <bpmn:sequenceFlow id="FS_Esp" name="Espresso" sourceRef="GW_KDSParallelFork" targetRef="Task_Line1_Espresso" />
+    <bpmn:sequenceFlow id="FS_Frz" name="Freeze" sourceRef="GW_KDSParallelFork" targetRef="Task_Line2_Freeze" />
+    <bpmn:sequenceFlow id="FS_Bak" name="Bánh mì" sourceRef="GW_KDSParallelFork" targetRef="Task_Line3_Bakery" />
+    <bpmn:sequenceFlow id="FS_J1" sourceRef="Task_Line1_Espresso" targetRef="GW_KDSParallelJoin" />
+    <bpmn:sequenceFlow id="FS_J2" sourceRef="Task_Line2_Freeze" targetRef="GW_KDSParallelJoin" />
+    <bpmn:sequenceFlow id="FS_J3" sourceRef="Task_Line3_Bakery" targetRef="GW_KDSParallelJoin" />
+    <bpmn:sequenceFlow id="FS6" sourceRef="GW_KDSParallelJoin" targetRef="Task_QuickAssemble" />
+    <bpmn:sequenceFlow id="FS7" sourceRef="Task_QuickAssemble" targetRef="Task_PressKDSComplete" />
+    <bpmn:sequenceFlow id="FS8" sourceRef="Task_PressKDSComplete" targetRef="Task_AutoPushNotify" />
+    <bpmn:sequenceFlow id="FS9" sourceRef="Task_AutoPushNotify" targetRef="End_Sys_Success" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P04_ToBe">
+    <bpmndi:BPMNPlane id="BPMNPlane_P04_ToBe" bpmnElement="Collaboration_P04_ToBe">
+      <bpmndi:BPMNShape id="Pool_Cust_ToBe_di" bpmnElement="Pool_Cust_ToBe" isHorizontal="true"><dc:Bounds x="40" y="40" width="2300" height="260" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pool_HL_ToBe_di" bpmnElement="Pool_HL_ToBe" isHorizontal="true"><dc:Bounds x="40" y="330" width="2300" height="630" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sys_ToBe_di" bpmnElement="Lane_Sys_ToBe" isHorizontal="true"><dc:Bounds x="70" y="330" width="2270" height="290" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Bar_ToBe_di" bpmnElement="Lane_Bar_ToBe" isHorizontal="true"><dc:Bounds x="70" y="620" width="2270" height="340" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_ToBe_di" bpmnElement="Start_ToBe"><dc:Bounds x="100" y="112" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="53" y="80" width="130" height="26" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ChannelChoice_di" bpmnElement="GW_ChannelChoice" isMarkerVisible="true"><dc:Bounds x="190" y="108" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="166" y="86" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_KioskOrder_di" bpmnElement="Task_KioskOrder"><dc:Bounds x="290" y="65" width="140" height="60" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AppPreOrder_di" bpmnElement="Task_AppPreOrder"><dc:Bounds x="290" y="145" width="140" height="60" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_PayChannelJoin_di" bpmnElement="GW_PayChannelJoin" isMarkerVisible="true"><dc:Bounds x="480" y="108" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SubmitOrder_di" bpmnElement="Task_SubmitOrder"><dc:Bounds x="580" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DigitalPayInstant_di" bpmnElement="Task_DigitalPayInstant"><dc:Bounds x="1040" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FindSeat_di" bpmnElement="Task_FindSeat"><dc:Bounds x="1270" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveNotify_di" bpmnElement="Task_ReceiveNotify"><dc:Bounds x="1780" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PickupSelfService_di" bpmnElement="Task_PickupSelfService"><dc:Bounds x="2010" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ToBe_Happy_di" bpmnElement="End_ToBe_Happy"><dc:Bounds x="2240" y="112" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="2202" y="154" width="112" height="28" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Sys_di" bpmnElement="Start_Sys"><dc:Bounds x="100" y="442" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="83" y="422" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AutoVerifyStock_di" bpmnElement="Task_AutoVerifyStock"><dc:Bounds x="580" y="425" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_StockCheckAuto_di" bpmnElement="GW_StockCheckAuto" isMarkerVisible="true"><dc:Bounds x="780" y="438" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="772" y="416" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Stock_Out_di" bpmnElement="End_Stock_Out"><dc:Bounds x="784" y="525" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="764" y="567" width="77" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AutoLockStock_di" bpmnElement="Task_AutoLockStock"><dc:Bounds x="1040" y="425" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DispatchToKDS_di" bpmnElement="Task_DispatchToKDS"><dc:Bounds x="1270" y="425" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveKDSTicket_di" bpmnElement="Task_ReceiveKDSTicket"><dc:Bounds x="190" y="730" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_KDSParallelFork_di" bpmnElement="GW_KDSParallelFork"><dc:Bounds x="390" y="743" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="360" y="721" width="105" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Line1_Espresso_di" bpmnElement="Task_Line1_Espresso"><dc:Bounds x="500" y="650" width="150" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Line2_Freeze_di" bpmnElement="Task_Line2_Freeze"><dc:Bounds x="500" y="733" width="150" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Line3_Bakery_di" bpmnElement="Task_Line3_Bakery"><dc:Bounds x="500" y="815" width="150" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_KDSParallelJoin_di" bpmnElement="GW_KDSParallelJoin"><dc:Bounds x="710" y="743" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="694" y="721" width="77" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_QuickAssemble_di" bpmnElement="Task_QuickAssemble"><dc:Bounds x="820" y="730" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PressKDSComplete_di" bpmnElement="Task_PressKDSComplete"><dc:Bounds x="1030" y="730" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AutoPushNotify_di" bpmnElement="Task_AutoPushNotify"><dc:Bounds x="1780" y="425" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Sys_Success_di" bpmnElement="End_Sys_Success"><dc:Bounds x="2060" y="442" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="2018" y="484" width="119" height="28" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="FT1_di" bpmnElement="FT1"><di:waypoint x="136" y="130" /><di:waypoint x="190" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT_Ch_Kiosk_di" bpmnElement="FT_Ch_Kiosk"><di:waypoint x="212" y="108" /><di:waypoint x="212" y="95" /><di:waypoint x="290" y="95" /><bpmndi:BPMNLabel><dc:Bounds x="232" y="77" width="38" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT_Ch_App_di" bpmnElement="FT_Ch_App"><di:waypoint x="212" y="152" /><di:waypoint x="212" y="175" /><di:waypoint x="290" y="175" /><bpmndi:BPMNLabel><dc:Bounds x="234" y="157" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT_Kiosk_Join_di" bpmnElement="FT_Kiosk_Join"><di:waypoint x="430" y="95" /><di:waypoint x="502" y="95" /><di:waypoint x="502" y="108" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT_App_Join_di" bpmnElement="FT_App_Join"><di:waypoint x="430" y="175" /><di:waypoint x="502" y="175" /><di:waypoint x="502" y="152" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT2_di" bpmnElement="FT2"><di:waypoint x="524" y="130" /><di:waypoint x="580" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT3_di" bpmnElement="FT3"><di:waypoint x="720" y="130" /><di:waypoint x="1040" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT4_di" bpmnElement="FT4"><di:waypoint x="1180" y="130" /><di:waypoint x="1270" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT5_di" bpmnElement="FT5"><di:waypoint x="1410" y="130" /><di:waypoint x="1780" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT6_di" bpmnElement="FT6"><di:waypoint x="1920" y="130" /><di:waypoint x="2010" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FT7_di" bpmnElement="FT7"><di:waypoint x="2150" y="130" /><di:waypoint x="2240" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS1_di" bpmnElement="FS1"><di:waypoint x="136" y="460" /><di:waypoint x="580" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS2_di" bpmnElement="FS2"><di:waypoint x="720" y="460" /><di:waypoint x="780" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_Stk_Yes_di" bpmnElement="FS_Stk_Yes"><di:waypoint x="824" y="460" /><di:waypoint x="1040" y="460" /><bpmndi:BPMNLabel><dc:Bounds x="914" y="442" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_Stk_No_di" bpmnElement="FS_Stk_No"><di:waypoint x="802" y="482" /><di:waypoint x="802" y="525" /><bpmndi:BPMNLabel><dc:Bounds x="810" y="496" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS3_di" bpmnElement="FS3"><di:waypoint x="1180" y="460" /><di:waypoint x="1270" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS4_di" bpmnElement="FS4"><di:waypoint x="1340" y="495" /><di:waypoint x="1340" y="590" /><di:waypoint x="260" y="590" /><di:waypoint x="260" y="730" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS5_di" bpmnElement="FS5"><di:waypoint x="330" y="765" /><di:waypoint x="390" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_Esp_di" bpmnElement="FS_Esp"><di:waypoint x="412" y="743" /><di:waypoint x="412" y="682" /><di:waypoint x="500" y="682" /><bpmndi:BPMNLabel><dc:Bounds x="426" y="664" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_Frz_di" bpmnElement="FS_Frz"><di:waypoint x="434" y="765" /><di:waypoint x="500" y="765" /><bpmndi:BPMNLabel><dc:Bounds x="444" y="747" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_Bak_di" bpmnElement="FS_Bak"><di:waypoint x="412" y="787" /><di:waypoint x="412" y="847" /><di:waypoint x="500" y="847" /><bpmndi:BPMNLabel><dc:Bounds x="430" y="829" width="52" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_J1_di" bpmnElement="FS_J1"><di:waypoint x="650" y="682" /><di:waypoint x="732" y="682" /><di:waypoint x="732" y="743" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_J2_di" bpmnElement="FS_J2"><di:waypoint x="650" y="765" /><di:waypoint x="710" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS_J3_di" bpmnElement="FS_J3"><di:waypoint x="650" y="847" /><di:waypoint x="732" y="847" /><di:waypoint x="732" y="787" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS6_di" bpmnElement="FS6"><di:waypoint x="754" y="765" /><di:waypoint x="820" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS7_di" bpmnElement="FS7"><di:waypoint x="960" y="765" /><di:waypoint x="1030" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS8_di" bpmnElement="FS8"><di:waypoint x="1170" y="765" /><di:waypoint x="1850" y="765" /><di:waypoint x="1850" y="495" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FS9_di" bpmnElement="FS9"><di:waypoint x="1920" y="460" /><di:waypoint x="2060" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MT_SendOrder_di" bpmnElement="MT_SendOrder"><di:waypoint x="650" y="165" /><di:waypoint x="650" y="425" /><bpmndi:BPMNLabel><dc:Bounds x="658" y="288" width="90" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MT_PayReq_di" bpmnElement="MT_PayReq"><di:waypoint x="1110" y="425" /><di:waypoint x="1110" y="165" /><bpmndi:BPMNLabel><dc:Bounds x="1118" y="288" width="75" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MT_PushReady_di" bpmnElement="MT_PushReady"><di:waypoint x="1850" y="425" /><di:waypoint x="1850" y="165" /><bpmndi:BPMNLabel><dc:Bounds x="1858" y="288" width="98" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

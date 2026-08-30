@@ -1,0 +1,155 @@
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_P09" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_P09">
+    <bpmn:participant id="Pool_P09" name="HIGHLANDS COFFEE - TUYỂN DỤNG &amp; ĐÀO TẠO" processRef="Process_P09" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_P09" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_P09">
+      <bpmn:lane id="Lane_HR" name="Phòng Nhân Sự (HR Dept)">
+        <bpmn:flowNodeRef>Start_HR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PostJob</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ScreenCV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_CVSuitable</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Fail_CV</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HRInterview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_HRPass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Fail_HR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OfferLetter</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_CandidateAccept</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Fail_Offer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SignContract</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Academy" name="Trung Tâm Đào Tạo (Barista Academy)">
+        <bpmn:flowNodeRef>Task_ClassTraining</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_TrainFork</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LearnRecipe</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LearnService</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_TrainJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ExamJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SkillExam</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ExamPass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReTrain</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_StoreOnboard" name="Cửa Hàng Tiếp Nhận (Store Operation)">
+        <bpmn:flowNodeRef>Task_OJTStore</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ProbationPass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Fail_Probation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FormalStaff</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_HR_Success</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_HR" name="Có nhu cầu tuyển"><bpmn:outgoing>F_H1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_PostJob" name="Đăng tin tuyển dụng"><bpmn:incoming>F_H1</bpmn:incoming><bpmn:outgoing>F_H2</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ScreenCV" name="Sàng lọc hồ sơ"><bpmn:incoming>F_H2</bpmn:incoming><bpmn:outgoing>F_H3</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_CVSuitable" name="Đạt tiêu chí?"><bpmn:incoming>F_H3</bpmn:incoming><bpmn:outgoing>F_CV_Pass</bpmn:outgoing><bpmn:outgoing>F_CV_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Fail_CV" name="Loại hồ sơ"><bpmn:incoming>F_CV_Fail</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_HRInterview" name="Phỏng vấn trực tiếp"><bpmn:incoming>F_CV_Pass</bpmn:incoming><bpmn:outgoing>F_H4</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_HRPass" name="Trúng tuyển?"><bpmn:incoming>F_H4</bpmn:incoming><bpmn:outgoing>F_HR_Pass</bpmn:outgoing><bpmn:outgoing>F_HR_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Fail_HR" name="Rớt PV"><bpmn:incoming>F_HR_Fail</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_OfferLetter" name="Gửi Offer Letter"><bpmn:incoming>F_HR_Pass</bpmn:incoming><bpmn:outgoing>F_H5</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_CandidateAccept" name="Đồng ý?"><bpmn:incoming>F_H5</bpmn:incoming><bpmn:outgoing>F_Acc_Yes</bpmn:outgoing><bpmn:outgoing>F_Acc_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Fail_Offer" name="Từ chối Offer"><bpmn:incoming>F_Acc_No</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_SignContract" name="Ký HĐ đào tạo"><bpmn:incoming>F_Acc_Yes</bpmn:incoming><bpmn:outgoing>F_H6</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_ClassTraining" name="Học SOP tại Academy (7 ngày)"><bpmn:incoming>F_H6</bpmn:incoming><bpmn:outgoing>F_H7</bpmn:outgoing></bpmn:task>
+    <bpmn:parallelGateway id="GW_TrainFork" name="Đào tạo song song"><bpmn:incoming>F_H7</bpmn:incoming><bpmn:outgoing>F_TF1</bpmn:outgoing><bpmn:outgoing>F_TF2</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:task id="Task_LearnRecipe" name="Thực hành pha chế"><bpmn:incoming>F_TF1</bpmn:incoming><bpmn:outgoing>F_TJ1</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_LearnService" name="Huấn luyện dịch vụ"><bpmn:incoming>F_TF2</bpmn:incoming><bpmn:outgoing>F_TJ2</bpmn:outgoing></bpmn:task>
+    <bpmn:parallelGateway id="GW_TrainJoin"><bpmn:incoming>F_TJ1</bpmn:incoming><bpmn:incoming>F_TJ2</bpmn:incoming><bpmn:outgoing>F_H8</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="GW_ExamJoin"><bpmn:incoming>F_H8</bpmn:incoming><bpmn:incoming>F_Re_Back</bpmn:incoming><bpmn:outgoing>F_To_Exam</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_SkillExam" name="Thi sát hạch tay nghề"><bpmn:incoming>F_To_Exam</bpmn:incoming><bpmn:outgoing>F_H9</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_ExamPass" name="Điểm &gt; 80đ?"><bpmn:incoming>F_H9</bpmn:incoming><bpmn:outgoing>F_Ex_Pass</bpmn:outgoing><bpmn:outgoing>F_Ex_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_ReTrain" name="Đào tạo lại 2 ngày"><bpmn:incoming>F_Ex_Fail</bpmn:incoming><bpmn:outgoing>F_Re_Back</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_OJTStore" name="Thực tập OJT 30 ngày"><bpmn:incoming>F_Ex_Pass</bpmn:incoming><bpmn:outgoing>F_H10</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_ProbationPass" name="Đạt thử việc?"><bpmn:incoming>F_H10</bpmn:incoming><bpmn:outgoing>F_Prob_Pass</bpmn:outgoing><bpmn:outgoing>F_Prob_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Fail_Probation" name="Dừng thử việc"><bpmn:incoming>F_Prob_Fail</bpmn:incoming></bpmn:endEvent>
+    <bpmn:task id="Task_FormalStaff" name="Ký HĐ chính thức"><bpmn:incoming>F_Prob_Pass</bpmn:incoming><bpmn:outgoing>F_H11</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_HR_Success" name="Barista chính thức"><bpmn:incoming>F_H11</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_H1" sourceRef="Start_HR" targetRef="Task_PostJob" />
+    <bpmn:sequenceFlow id="F_H2" sourceRef="Task_PostJob" targetRef="Task_ScreenCV" />
+    <bpmn:sequenceFlow id="F_H3" sourceRef="Task_ScreenCV" targetRef="GW_CVSuitable" />
+    <bpmn:sequenceFlow id="F_CV_Pass" name="Đạt" sourceRef="GW_CVSuitable" targetRef="Task_HRInterview" />
+    <bpmn:sequenceFlow id="F_CV_Fail" name="Loại" sourceRef="GW_CVSuitable" targetRef="End_Fail_CV" />
+    <bpmn:sequenceFlow id="F_H4" sourceRef="Task_HRInterview" targetRef="GW_HRPass" />
+    <bpmn:sequenceFlow id="F_HR_Pass" name="Đậu" sourceRef="GW_HRPass" targetRef="Task_OfferLetter" />
+    <bpmn:sequenceFlow id="F_HR_Fail" name="Rớt" sourceRef="GW_HRPass" targetRef="End_Fail_HR" />
+    <bpmn:sequenceFlow id="F_H5" sourceRef="Task_OfferLetter" targetRef="GW_CandidateAccept" />
+    <bpmn:sequenceFlow id="F_Acc_Yes" name="Nhận" sourceRef="GW_CandidateAccept" targetRef="Task_SignContract" />
+    <bpmn:sequenceFlow id="F_Acc_No" name="Từ chối" sourceRef="GW_CandidateAccept" targetRef="End_Fail_Offer" />
+    <bpmn:sequenceFlow id="F_H6" sourceRef="Task_SignContract" targetRef="Task_ClassTraining" />
+    <bpmn:sequenceFlow id="F_H7" sourceRef="Task_ClassTraining" targetRef="GW_TrainFork" />
+    <bpmn:sequenceFlow id="F_TF1" sourceRef="GW_TrainFork" targetRef="Task_LearnRecipe" />
+    <bpmn:sequenceFlow id="F_TF2" sourceRef="GW_TrainFork" targetRef="Task_LearnService" />
+    <bpmn:sequenceFlow id="F_TJ1" sourceRef="Task_LearnRecipe" targetRef="GW_TrainJoin" />
+    <bpmn:sequenceFlow id="F_TJ2" sourceRef="Task_LearnService" targetRef="GW_TrainJoin" />
+    <bpmn:sequenceFlow id="F_H8" sourceRef="GW_TrainJoin" targetRef="GW_ExamJoin" />
+    <bpmn:sequenceFlow id="F_Re_Back" name="Thi lại" sourceRef="Task_ReTrain" targetRef="GW_ExamJoin" />
+    <bpmn:sequenceFlow id="F_To_Exam" sourceRef="GW_ExamJoin" targetRef="Task_SkillExam" />
+    <bpmn:sequenceFlow id="F_H9" sourceRef="Task_SkillExam" targetRef="GW_ExamPass" />
+    <bpmn:sequenceFlow id="F_Ex_Pass" name="Đạt" sourceRef="GW_ExamPass" targetRef="Task_OJTStore" />
+    <bpmn:sequenceFlow id="F_Ex_Fail" name="Trượt" sourceRef="GW_ExamPass" targetRef="Task_ReTrain" />
+    <bpmn:sequenceFlow id="F_H10" sourceRef="Task_OJTStore" targetRef="GW_ProbationPass" />
+    <bpmn:sequenceFlow id="F_Prob_Pass" name="Đạt" sourceRef="GW_ProbationPass" targetRef="Task_FormalStaff" />
+    <bpmn:sequenceFlow id="F_Prob_Fail" name="Loại" sourceRef="GW_ProbationPass" targetRef="End_Fail_Probation" />
+    <bpmn:sequenceFlow id="F_H11" sourceRef="Task_FormalStaff" targetRef="End_HR_Success" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P09">
+    <bpmndi:BPMNPlane id="BPMNPlane_P09" bpmnElement="Collaboration_P09">
+      <bpmndi:BPMNShape id="Pool_P09_di" bpmnElement="Pool_P09" isHorizontal="true"><dc:Bounds x="40" y="40" width="1850" height="980" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_HR_di" bpmnElement="Lane_HR" isHorizontal="true"><dc:Bounds x="70" y="40" width="1820" height="290" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Academy_di" bpmnElement="Lane_Academy" isHorizontal="true"><dc:Bounds x="70" y="330" width="1820" height="310" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_StoreOnboard_di" bpmnElement="Lane_StoreOnboard" isHorizontal="true"><dc:Bounds x="70" y="640" width="1820" height="380" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_HR_di" bpmnElement="Start_HR"><dc:Bounds x="120" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="82" y="98" width="112" height="28" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PostJob_di" bpmnElement="Task_PostJob"><dc:Bounds x="210" y="115" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ScreenCV_di" bpmnElement="Task_ScreenCV"><dc:Bounds x="400" y="115" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_CVSuitable_di" bpmnElement="GW_CVSuitable" isMarkerVisible="true"><dc:Bounds x="590" y="128" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="566" y="106" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Fail_CV_di" bpmnElement="End_Fail_CV"><dc:Bounds x="594" y="215" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="577" y="257" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HRInterview_di" bpmnElement="Task_HRInterview"><dc:Bounds x="690" y="115" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_HRPass_di" bpmnElement="GW_HRPass" isMarkerVisible="true"><dc:Bounds x="880" y="128" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="860" y="106" width="84" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Fail_HR_di" bpmnElement="End_Fail_HR"><dc:Bounds x="884" y="215" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="872" y="257" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OfferLetter_di" bpmnElement="Task_OfferLetter"><dc:Bounds x="980" y="115" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_CandidateAccept_di" bpmnElement="GW_CandidateAccept" isMarkerVisible="true"><dc:Bounds x="1170" y="128" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1162" y="106" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Fail_Offer_di" bpmnElement="End_Fail_Offer"><dc:Bounds x="1174" y="215" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1146" y="257" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SignContract_di" bpmnElement="Task_SignContract"><dc:Bounds x="1270" y="115" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ClassTraining_di" bpmnElement="Task_ClassTraining"><dc:Bounds x="210" y="440" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_TrainFork_di" bpmnElement="GW_TrainFork"><dc:Bounds x="410" y="453" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="372" y="417" width="119" height="28" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LearnRecipe_di" bpmnElement="Task_LearnRecipe"><dc:Bounds x="510" y="385" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LearnService_di" bpmnElement="Task_LearnService"><dc:Bounds x="510" y="505" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_TrainJoin_di" bpmnElement="GW_TrainJoin"><dc:Bounds x="710" y="453" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ExamJoin_di" bpmnElement="GW_ExamJoin" isMarkerVisible="true"><dc:Bounds x="810" y="453" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SkillExam_di" bpmnElement="Task_SkillExam"><dc:Bounds x="910" y="440" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ExamPass_di" bpmnElement="GW_ExamPass" isMarkerVisible="true"><dc:Bounds x="1110" y="453" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1094" y="431" width="77" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReTrain_di" bpmnElement="Task_ReTrain"><dc:Bounds x="1067" y="545" width="130" height="60" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OJTStore_di" bpmnElement="Task_OJTStore"><dc:Bounds x="1270" y="770" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ProbationPass_di" bpmnElement="GW_ProbationPass" isMarkerVisible="true"><dc:Bounds x="1470" y="783" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1446" y="761" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Fail_Probation_di" bpmnElement="End_Fail_Probation"><dc:Bounds x="1474" y="875" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1446" y="917" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FormalStaff_di" bpmnElement="Task_FormalStaff"><dc:Bounds x="1580" y="770" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_HR_Success_di" bpmnElement="End_HR_Success"><dc:Bounds x="1790" y="787" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1745" y="829" width="126" height="28" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_H1_di" bpmnElement="F_H1"><di:waypoint x="156" y="150" /><di:waypoint x="210" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H2_di" bpmnElement="F_H2"><di:waypoint x="340" y="150" /><di:waypoint x="400" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H3_di" bpmnElement="F_H3"><di:waypoint x="530" y="150" /><di:waypoint x="590" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_CV_Pass_di" bpmnElement="F_CV_Pass"><di:waypoint x="634" y="150" /><di:waypoint x="690" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="644" y="132" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_CV_Fail_di" bpmnElement="F_CV_Fail"><di:waypoint x="612" y="172" /><di:waypoint x="612" y="215" /><bpmndi:BPMNLabel><dc:Bounds x="620" y="186" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H4_di" bpmnElement="F_H4"><di:waypoint x="820" y="150" /><di:waypoint x="880" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_HR_Pass_di" bpmnElement="F_HR_Pass"><di:waypoint x="924" y="150" /><di:waypoint x="980" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="934" y="132" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_HR_Fail_di" bpmnElement="F_HR_Fail"><di:waypoint x="902" y="172" /><di:waypoint x="902" y="215" /><bpmndi:BPMNLabel><dc:Bounds x="910" y="186" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H5_di" bpmnElement="F_H5"><di:waypoint x="1110" y="150" /><di:waypoint x="1170" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Acc_Yes_di" bpmnElement="F_Acc_Yes"><di:waypoint x="1214" y="150" /><di:waypoint x="1270" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="1224" y="132" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Acc_No_di" bpmnElement="F_Acc_No"><di:waypoint x="1192" y="172" /><di:waypoint x="1192" y="215" /><bpmndi:BPMNLabel><dc:Bounds x="1200" y="186" width="52" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H6_di" bpmnElement="F_H6"><di:waypoint x="1335" y="185" /><di:waypoint x="1335" y="310" /><di:waypoint x="280" y="310" /><di:waypoint x="280" y="440" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H7_di" bpmnElement="F_H7"><di:waypoint x="350" y="475" /><di:waypoint x="410" y="475" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TF1_di" bpmnElement="F_TF1"><di:waypoint x="432" y="453" /><di:waypoint x="432" y="417" /><di:waypoint x="510" y="417" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TF2_di" bpmnElement="F_TF2"><di:waypoint x="432" y="497" /><di:waypoint x="432" y="537" /><di:waypoint x="510" y="537" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TJ1_di" bpmnElement="F_TJ1"><di:waypoint x="650" y="417" /><di:waypoint x="732" y="417" /><di:waypoint x="732" y="453" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_TJ2_di" bpmnElement="F_TJ2"><di:waypoint x="650" y="537" /><di:waypoint x="732" y="537" /><di:waypoint x="732" y="497" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H8_di" bpmnElement="F_H8"><di:waypoint x="754" y="475" /><di:waypoint x="810" y="475" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Re_Back_di" bpmnElement="F_Re_Back"><di:waypoint x="1067" y="575" /><di:waypoint x="832" y="575" /><di:waypoint x="832" y="497" /><bpmndi:BPMNLabel><dc:Bounds x="923" y="557" width="52" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_To_Exam_di" bpmnElement="F_To_Exam"><di:waypoint x="854" y="475" /><di:waypoint x="910" y="475" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H9_di" bpmnElement="F_H9"><di:waypoint x="1050" y="475" /><di:waypoint x="1110" y="475" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Ex_Pass_di" bpmnElement="F_Ex_Pass"><di:waypoint x="1154" y="475" /><di:waypoint x="1340" y="475" /><di:waypoint x="1340" y="770" /><bpmndi:BPMNLabel><dc:Bounds x="1348" y="616" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Ex_Fail_di" bpmnElement="F_Ex_Fail"><di:waypoint x="1132" y="497" /><di:waypoint x="1132" y="545" /><bpmndi:BPMNLabel><dc:Bounds x="1140" y="514" width="38" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H10_di" bpmnElement="F_H10"><di:waypoint x="1410" y="805" /><di:waypoint x="1470" y="805" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Prob_Pass_di" bpmnElement="F_Prob_Pass"><di:waypoint x="1514" y="805" /><di:waypoint x="1580" y="805" /><bpmndi:BPMNLabel><dc:Bounds x="1530" y="787" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_Prob_Fail_di" bpmnElement="F_Prob_Fail"><di:waypoint x="1492" y="827" /><di:waypoint x="1492" y="875" /><bpmndi:BPMNLabel><dc:Bounds x="1500" y="844" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_H11_di" bpmnElement="F_H11"><di:waypoint x="1720" y="805" /><di:waypoint x="1790" y="805" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

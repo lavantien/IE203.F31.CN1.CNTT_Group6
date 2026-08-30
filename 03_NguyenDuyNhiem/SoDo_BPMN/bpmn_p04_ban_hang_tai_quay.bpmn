@@ -1,0 +1,205 @@
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_P04_AsIs" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_P04_AsIs">
+    <bpmn:participant id="Pool_Cust" name="Khách Hàng" processRef="Process_Cust" />
+    <bpmn:participant id="Pool_HL" name="HIGHLANDS COFFEE" processRef="Process_HL" />
+    <bpmn:messageFlow id="MF_Order" name="Gửi yêu cầu món" sourceRef="Task_OrderDrink" targetRef="Task_Greeting" />
+    <bpmn:messageFlow id="MF_SuggestAlt" name="Báo hết món" sourceRef="Task_SuggestAlt" targetRef="Task_CustDecideAlt" />
+    <bpmn:messageFlow id="MF_GivePager" name="Giao bill &amp; thẻ Pager" sourceRef="Task_PrintTicket" targetRef="Task_TakePager" />
+    <bpmn:messageFlow id="MF_Buzz" name="Rung chuông Pager" sourceRef="Task_BuzzPager" targetRef="Task_WaitDrink" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Cust" isExecutable="false">
+    <bpmn:startEvent id="Start_Cust" name="Khách đến quán"><bpmn:outgoing>FC1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_Queue" name="Xếp hàng chờ gọi món"><bpmn:incoming>FC1</bpmn:incoming><bpmn:outgoing>FC2</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_QueueTime" name="Chờ &gt; 10p?"><bpmn:incoming>FC2</bpmn:incoming><bpmn:outgoing>FC_Leave</bpmn:outgoing><bpmn:outgoing>FC_WaitOk</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Cust_Leave" name="Bỏ về"><bpmn:incoming>FC_Leave</bpmn:incoming><bpmn:incoming>FC_Alt_No</bpmn:incoming></bpmn:endEvent>
+    <bpmn:exclusiveGateway id="GW_CustOrderLoop"><bpmn:incoming>FC_WaitOk</bpmn:incoming><bpmn:incoming>FC_Alt_Yes</bpmn:incoming><bpmn:outgoing>FC3</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_OrderDrink" name="Chọn món, size &amp; vị"><bpmn:incoming>FC3</bpmn:incoming><bpmn:outgoing>FC4</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_CustDecideAlt" name="Cân nhắc đổi món"><bpmn:incoming>FC4</bpmn:incoming><bpmn:outgoing>FC5</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_AltChoice" name="Đồng ý đổi?"><bpmn:incoming>FC5</bpmn:incoming><bpmn:outgoing>FC_Alt_Yes</bpmn:outgoing><bpmn:outgoing>FC_Alt_No</bpmn:outgoing><bpmn:outgoing>FC_PayDirect</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_TakePager" name="Cầm thẻ rung tìm bàn"><bpmn:incoming>FC_PayDirect</bpmn:incoming><bpmn:outgoing>FC6</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_WaitDrink" name="Ngồi chờ nhận tín hiệu"><bpmn:incoming>FC6</bpmn:incoming><bpmn:outgoing>FC7</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_PickupDrink" name="Đến quầy nhận đồ uống"><bpmn:incoming>FC7</bpmn:incoming><bpmn:outgoing>FC8</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_Cust_Happy" name="Hoàn tất phục vụ"><bpmn:incoming>FC8</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="FC1" sourceRef="Start_Cust" targetRef="Task_Queue" />
+    <bpmn:sequenceFlow id="FC2" sourceRef="Task_Queue" targetRef="GW_QueueTime" />
+    <bpmn:sequenceFlow id="FC_Leave" name="Bỏ đi" sourceRef="GW_QueueTime" targetRef="End_Cust_Leave" />
+    <bpmn:sequenceFlow id="FC_WaitOk" name="Tiếp tục" sourceRef="GW_QueueTime" targetRef="GW_CustOrderLoop" />
+    <bpmn:sequenceFlow id="FC3" sourceRef="GW_CustOrderLoop" targetRef="Task_OrderDrink" />
+    <bpmn:sequenceFlow id="FC4" sourceRef="Task_OrderDrink" targetRef="Task_CustDecideAlt" />
+    <bpmn:sequenceFlow id="FC5" sourceRef="Task_CustDecideAlt" targetRef="GW_AltChoice" />
+    <bpmn:sequenceFlow id="FC_Alt_Yes" name="Đồng ý" sourceRef="GW_AltChoice" targetRef="GW_CustOrderLoop" />
+    <bpmn:sequenceFlow id="FC_Alt_No" name="Hủy" sourceRef="GW_AltChoice" targetRef="End_Cust_Leave" />
+    <bpmn:sequenceFlow id="FC_PayDirect" name="Còn hàng" sourceRef="GW_AltChoice" targetRef="Task_TakePager" />
+    <bpmn:sequenceFlow id="FC6" sourceRef="Task_TakePager" targetRef="Task_WaitDrink" />
+    <bpmn:sequenceFlow id="FC7" sourceRef="Task_WaitDrink" targetRef="Task_PickupDrink" />
+    <bpmn:sequenceFlow id="FC8" sourceRef="Task_PickupDrink" targetRef="End_Cust_Happy" />
+  </bpmn:process>
+  <bpmn:process id="Process_HL" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_HL">
+      <bpmn:lane id="Lane_Cashier" name="Thu Ngân (Cashier)">
+        <bpmn:flowNodeRef>Start_Cashier</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Greeting</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_POS_InputJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputPOS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_DrinkAvail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SuggestAlt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_PayMethod</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CashPay</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DigitalPay</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_PayJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PrintTicket</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Barista" name="Quầy Pha Chế (Barista &amp; Bếp)">
+        <bpmn:flowNodeRef>Task_GetTicket</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_ReworkJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_BaristaFork</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MakeCoffee</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MakeFreeze</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_WarmCake</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_BaristaJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_QualityCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>GW_TastePass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReworkDrink</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BuzzPager</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_HL_Done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Cashier" name="Khách đến quầy"><bpmn:outgoing>FH1</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Task_Greeting" name="Chào &amp; tư vấn menu"><bpmn:incoming>FH1</bpmn:incoming><bpmn:outgoing>FH2</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_POS_InputJoin"><bpmn:incoming>FH2</bpmn:incoming><bpmn:incoming>FH_Alt_ReInput</bpmn:incoming><bpmn:outgoing>FH_To_POS</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_InputPOS" name="Nhập order vào POS"><bpmn:incoming>FH_To_POS</bpmn:incoming><bpmn:outgoing>FH3</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_DrinkAvail" name="Còn đủ món?"><bpmn:incoming>FH3</bpmn:incoming><bpmn:outgoing>FH_Avail_Yes</bpmn:outgoing><bpmn:outgoing>FH_Avail_No</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_SuggestAlt" name="Báo hết &amp; tư vấn đổi"><bpmn:incoming>FH_Avail_No</bpmn:incoming><bpmn:outgoing>FH_Alt_ReInput</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_PayMethod" name="Hình thức TT?"><bpmn:incoming>FH_Avail_Yes</bpmn:incoming><bpmn:outgoing>FH_Pay_Cash</bpmn:outgoing><bpmn:outgoing>FH_Pay_Dig</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_CashPay" name="Thu tiền mặt"><bpmn:incoming>FH_Pay_Cash</bpmn:incoming><bpmn:outgoing>FH_PJ1</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_DigitalPay" name="Quẹt thẻ / VietQR"><bpmn:incoming>FH_Pay_Dig</bpmn:incoming><bpmn:outgoing>FH_PJ2</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_PayJoin"><bpmn:incoming>FH_PJ1</bpmn:incoming><bpmn:incoming>FH_PJ2</bpmn:incoming><bpmn:outgoing>FH4</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_PrintTicket" name="In bill &amp; giao Pager"><bpmn:incoming>FH4</bpmn:incoming><bpmn:outgoing>FH5_SeqToBar</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_GetTicket" name="Barista dán bill quầy bar"><bpmn:incoming>FH5_SeqToBar</bpmn:incoming><bpmn:outgoing>FH6</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_ReworkJoin"><bpmn:incoming>FH6</bpmn:incoming><bpmn:incoming>FH_Rework_Loop</bpmn:incoming><bpmn:outgoing>FH7</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:inclusiveGateway id="GW_BaristaFork" name="Phân loại trạm pha?"><bpmn:incoming>FH7</bpmn:incoming><bpmn:outgoing>FH_B1</bpmn:outgoing><bpmn:outgoing>FH_B2</bpmn:outgoing><bpmn:outgoing>FH_B3</bpmn:outgoing></bpmn:inclusiveGateway>
+    <bpmn:task id="Task_MakeCoffee" name="Pha Cà phê Phin / Espresso"><bpmn:incoming>FH_B1</bpmn:incoming><bpmn:outgoing>FH_J1</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_MakeFreeze" name="Xay Freeze &amp; bơm kem"><bpmn:incoming>FH_B2</bpmn:incoming><bpmn:outgoing>FH_J2</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_WarmCake" name="Bếp: Nướng bánh mì que"><bpmn:incoming>FH_B3</bpmn:incoming><bpmn:outgoing>FH_J3</bpmn:outgoing></bpmn:task>
+    <bpmn:inclusiveGateway id="GW_BaristaJoin" name="Gom đủ món"><bpmn:incoming>FH_J1</bpmn:incoming><bpmn:incoming>FH_J2</bpmn:incoming><bpmn:incoming>FH_J3</bpmn:incoming><bpmn:outgoing>FH8</bpmn:outgoing></bpmn:inclusiveGateway>
+    <bpmn:task id="Task_QualityCheck" name="Kiểm tra cảm quan SOP"><bpmn:incoming>FH8</bpmn:incoming><bpmn:outgoing>FH9</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="GW_TastePass" name="Đạt chuẩn?"><bpmn:incoming>FH9</bpmn:incoming><bpmn:outgoing>FH_Pass</bpmn:outgoing><bpmn:outgoing>FH_Fail</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Task_ReworkDrink" name="Hủy ly hỏng &amp; làm lại"><bpmn:incoming>FH_Fail</bpmn:incoming><bpmn:outgoing>FH_Rework_Loop</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Task_BuzzPager" name="Bấm máy rung thẻ Pager"><bpmn:incoming>FH_Pass</bpmn:incoming><bpmn:outgoing>FH10</bpmn:outgoing></bpmn:task>
+    <bpmn:endEvent id="End_HL_Done" name="Hoàn tất đơn"><bpmn:incoming>FH10</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="FH1" sourceRef="Start_Cashier" targetRef="Task_Greeting" />
+    <bpmn:sequenceFlow id="FH2" sourceRef="Task_Greeting" targetRef="GW_POS_InputJoin" />
+    <bpmn:sequenceFlow id="FH_Alt_ReInput" name="Món mới" sourceRef="Task_SuggestAlt" targetRef="GW_POS_InputJoin" />
+    <bpmn:sequenceFlow id="FH_To_POS" sourceRef="GW_POS_InputJoin" targetRef="Task_InputPOS" />
+    <bpmn:sequenceFlow id="FH3" sourceRef="Task_InputPOS" targetRef="GW_DrinkAvail" />
+    <bpmn:sequenceFlow id="FH_Avail_Yes" name="Còn" sourceRef="GW_DrinkAvail" targetRef="GW_PayMethod" />
+    <bpmn:sequenceFlow id="FH_Avail_No" name="Hết" sourceRef="GW_DrinkAvail" targetRef="Task_SuggestAlt" />
+    <bpmn:sequenceFlow id="FH_Pay_Cash" name="Tiền mặt" sourceRef="GW_PayMethod" targetRef="Task_CashPay" />
+    <bpmn:sequenceFlow id="FH_Pay_Dig" name="Thẻ/QR" sourceRef="GW_PayMethod" targetRef="Task_DigitalPay" />
+    <bpmn:sequenceFlow id="FH_PJ1" sourceRef="Task_CashPay" targetRef="GW_PayJoin" />
+    <bpmn:sequenceFlow id="FH_PJ2" sourceRef="Task_DigitalPay" targetRef="GW_PayJoin" />
+    <bpmn:sequenceFlow id="FH4" sourceRef="GW_PayJoin" targetRef="Task_PrintTicket" />
+    <bpmn:sequenceFlow id="FH5_SeqToBar" sourceRef="Task_PrintTicket" targetRef="Task_GetTicket" />
+    <bpmn:sequenceFlow id="FH6" sourceRef="Task_GetTicket" targetRef="GW_ReworkJoin" />
+    <bpmn:sequenceFlow id="FH_Rework_Loop" name="Làm lại" sourceRef="Task_ReworkDrink" targetRef="GW_ReworkJoin" />
+    <bpmn:sequenceFlow id="FH7" sourceRef="GW_ReworkJoin" targetRef="GW_BaristaFork" />
+    <bpmn:sequenceFlow id="FH_B1" name="Cà phê" sourceRef="GW_BaristaFork" targetRef="Task_MakeCoffee" />
+    <bpmn:sequenceFlow id="FH_B2" name="Freeze" sourceRef="GW_BaristaFork" targetRef="Task_MakeFreeze" />
+    <bpmn:sequenceFlow id="FH_B3" name="Bánh mì" sourceRef="GW_BaristaFork" targetRef="Task_WarmCake" />
+    <bpmn:sequenceFlow id="FH_J1" sourceRef="Task_MakeCoffee" targetRef="GW_BaristaJoin" />
+    <bpmn:sequenceFlow id="FH_J2" sourceRef="Task_MakeFreeze" targetRef="GW_BaristaJoin" />
+    <bpmn:sequenceFlow id="FH_J3" sourceRef="Task_WarmCake" targetRef="GW_BaristaJoin" />
+    <bpmn:sequenceFlow id="FH8" sourceRef="GW_BaristaJoin" targetRef="Task_QualityCheck" />
+    <bpmn:sequenceFlow id="FH9" sourceRef="Task_QualityCheck" targetRef="GW_TastePass" />
+    <bpmn:sequenceFlow id="FH_Pass" name="Đạt" sourceRef="GW_TastePass" targetRef="Task_BuzzPager" />
+    <bpmn:sequenceFlow id="FH_Fail" name="Hỏng" sourceRef="GW_TastePass" targetRef="Task_ReworkDrink" />
+    <bpmn:sequenceFlow id="FH10" sourceRef="Task_BuzzPager" targetRef="End_HL_Done" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_P04_AsIs">
+    <bpmndi:BPMNPlane id="BPMNPlane_P04_AsIs" bpmnElement="Collaboration_P04_AsIs">
+      <bpmndi:BPMNShape id="Pool_Cust_di" bpmnElement="Pool_Cust" isHorizontal="true"><dc:Bounds x="40" y="40" width="2470" height="260" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pool_HL_di" bpmnElement="Pool_HL" isHorizontal="true"><dc:Bounds x="40" y="330" width="2470" height="630" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Cashier_di" bpmnElement="Lane_Cashier" isHorizontal="true"><dc:Bounds x="70" y="330" width="2440" height="290" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Barista_di" bpmnElement="Lane_Barista" isHorizontal="true"><dc:Bounds x="70" y="620" width="2440" height="340" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Cust_di" bpmnElement="Start_Cust"><dc:Bounds x="100" y="112" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="75" y="155" width="85" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Queue_di" bpmnElement="Task_Queue"><dc:Bounds x="190" y="95" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_QueueTime_di" bpmnElement="GW_QueueTime" isMarkerVisible="true"><dc:Bounds x="380" y="108" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="365" y="75" width="75" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Cust_Leave_di" bpmnElement="End_Cust_Leave"><dc:Bounds x="384" y="205" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="385" y="245" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_CustOrderLoop_di" bpmnElement="GW_CustOrderLoop" isMarkerVisible="true"><dc:Bounds x="480" y="108" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OrderDrink_di" bpmnElement="Task_OrderDrink"><dc:Bounds x="580" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CustDecideAlt_di" bpmnElement="Task_CustDecideAlt"><dc:Bounds x="780" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_AltChoice_di" bpmnElement="GW_AltChoice" isMarkerVisible="true"><dc:Bounds x="980" y="108" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="965" y="75" width="75" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_TakePager_di" bpmnElement="Task_TakePager"><dc:Bounds x="1500" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_WaitDrink_di" bpmnElement="Task_WaitDrink"><dc:Bounds x="1950" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PickupDrink_di" bpmnElement="Task_PickupDrink"><dc:Bounds x="2190" y="95" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Cust_Happy_di" bpmnElement="End_Cust_Happy"><dc:Bounds x="2410" y="112" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="2385" y="155" width="90" height="27" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Cashier_di" bpmnElement="Start_Cashier"><dc:Bounds x="100" y="442" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="69" y="422" width="98" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Greeting_di" bpmnElement="Task_Greeting"><dc:Bounds x="190" y="425" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_POS_InputJoin_di" bpmnElement="GW_POS_InputJoin" isMarkerVisible="true"><dc:Bounds x="380" y="438" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InputPOS_di" bpmnElement="Task_InputPOS"><dc:Bounds x="480" y="425" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_DrinkAvail_di" bpmnElement="GW_DrinkAvail" isMarkerVisible="true"><dc:Bounds x="680" y="438" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="664" y="416" width="77" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SuggestAlt_di" bpmnElement="Task_SuggestAlt"><dc:Bounds x="780" y="525" width="140" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_PayMethod_di" bpmnElement="GW_PayMethod" isMarkerVisible="true"><dc:Bounds x="980" y="438" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="956" y="416" width="91" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CashPay_di" bpmnElement="Task_CashPay"><dc:Bounds x="1090" y="375" width="130" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DigitalPay_di" bpmnElement="Task_DigitalPay"><dc:Bounds x="1090" y="485" width="130" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_PayJoin_di" bpmnElement="GW_PayJoin" isMarkerVisible="true"><dc:Bounds x="1280" y="438" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PrintTicket_di" bpmnElement="Task_PrintTicket"><dc:Bounds x="1380" y="425" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GetTicket_di" bpmnElement="Task_GetTicket"><dc:Bounds x="190" y="730" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_ReworkJoin_di" bpmnElement="GW_ReworkJoin" isMarkerVisible="true"><dc:Bounds x="380" y="743" width="44" height="44" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_BaristaFork_di" bpmnElement="GW_BaristaFork"><dc:Bounds x="480" y="743" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="436" y="707" width="133" height="28" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MakeCoffee_di" bpmnElement="Task_MakeCoffee"><dc:Bounds x="580" y="650" width="150" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_MakeFreeze_di" bpmnElement="Task_MakeFreeze"><dc:Bounds x="580" y="733" width="150" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_WarmCake_di" bpmnElement="Task_WarmCake"><dc:Bounds x="580" y="815" width="150" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_BaristaJoin_di" bpmnElement="GW_BaristaJoin"><dc:Bounds x="780" y="743" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="767" y="721" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_QualityCheck_di" bpmnElement="Task_QualityCheck"><dc:Bounds x="880" y="730" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GW_TastePass_di" bpmnElement="GW_TastePass" isMarkerVisible="true"><dc:Bounds x="1080" y="743" width="44" height="44" /><bpmndi:BPMNLabel><dc:Bounds x="1067" y="721" width="70" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReworkDrink_di" bpmnElement="Task_ReworkDrink"><dc:Bounds x="1037" y="835" width="130" height="65" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BuzzPager_di" bpmnElement="Task_BuzzPager"><dc:Bounds x="1950" y="730" width="140" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_HL_Done_di" bpmnElement="End_HL_Done"><dc:Bounds x="2240" y="747" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="2216" y="789" width="84" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="FC1_di" bpmnElement="FC1"><di:waypoint x="136" y="130" /><di:waypoint x="190" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC2_di" bpmnElement="FC2"><di:waypoint x="320" y="130" /><di:waypoint x="380" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC_Leave_di" bpmnElement="FC_Leave"><di:waypoint x="402" y="152" /><di:waypoint x="402" y="205" /><bpmndi:BPMNLabel><dc:Bounds x="410" y="172" width="38" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC_WaitOk_di" bpmnElement="FC_WaitOk"><di:waypoint x="424" y="130" /><di:waypoint x="480" y="130" /><bpmndi:BPMNLabel><dc:Bounds x="422" y="112" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC3_di" bpmnElement="FC3"><di:waypoint x="524" y="130" /><di:waypoint x="580" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC4_di" bpmnElement="FC4"><di:waypoint x="720" y="130" /><di:waypoint x="780" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC5_di" bpmnElement="FC5"><di:waypoint x="920" y="130" /><di:waypoint x="980" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC_Alt_Yes_di" bpmnElement="FC_Alt_Yes"><di:waypoint x="1002" y="108" /><di:waypoint x="1002" y="65" /><di:waypoint x="502" y="65" /><di:waypoint x="502" y="108" /><bpmndi:BPMNLabel><dc:Bounds x="730" y="47" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC_Alt_No_di" bpmnElement="FC_Alt_No"><di:waypoint x="1002" y="152" /><di:waypoint x="1002" y="223" /><di:waypoint x="420" y="223" /><bpmndi:BPMNLabel><dc:Bounds x="694" y="205" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC_PayDirect_di" bpmnElement="FC_PayDirect"><di:waypoint x="1024" y="130" /><di:waypoint x="1500" y="130" /><bpmndi:BPMNLabel><dc:Bounds x="1232" y="112" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC6_di" bpmnElement="FC6"><di:waypoint x="1640" y="130" /><di:waypoint x="1950" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC7_di" bpmnElement="FC7"><di:waypoint x="2090" y="130" /><di:waypoint x="2190" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FC8_di" bpmnElement="FC8"><di:waypoint x="2330" y="130" /><di:waypoint x="2410" y="130" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH1_di" bpmnElement="FH1"><di:waypoint x="136" y="460" /><di:waypoint x="190" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH2_di" bpmnElement="FH2"><di:waypoint x="320" y="460" /><di:waypoint x="380" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Alt_ReInput_di" bpmnElement="FH_Alt_ReInput"><di:waypoint x="780" y="557" /><di:waypoint x="402" y="557" /><di:waypoint x="402" y="482" /><bpmndi:BPMNLabel><dc:Bounds x="565" y="539" width="52" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_To_POS_di" bpmnElement="FH_To_POS"><di:waypoint x="424" y="460" /><di:waypoint x="480" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH3_di" bpmnElement="FH3"><di:waypoint x="620" y="460" /><di:waypoint x="680" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Avail_Yes_di" bpmnElement="FH_Avail_Yes"><di:waypoint x="724" y="460" /><di:waypoint x="980" y="460" /><bpmndi:BPMNLabel><dc:Bounds x="834" y="442" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Avail_No_di" bpmnElement="FH_Avail_No"><di:waypoint x="702" y="482" /><di:waypoint x="702" y="557" /><di:waypoint x="780" y="557" /><bpmndi:BPMNLabel><dc:Bounds x="724" y="539" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Pay_Cash_di" bpmnElement="FH_Pay_Cash"><di:waypoint x="1002" y="438" /><di:waypoint x="1002" y="407" /><di:waypoint x="1090" y="407" /><bpmndi:BPMNLabel><dc:Bounds x="1016" y="389" width="60" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Pay_Dig_di" bpmnElement="FH_Pay_Dig"><di:waypoint x="1002" y="482" /><di:waypoint x="1002" y="517" /><di:waypoint x="1090" y="517" /><bpmndi:BPMNLabel><dc:Bounds x="1024" y="499" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_PJ1_di" bpmnElement="FH_PJ1"><di:waypoint x="1220" y="407" /><di:waypoint x="1302" y="407" /><di:waypoint x="1302" y="438" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_PJ2_di" bpmnElement="FH_PJ2"><di:waypoint x="1220" y="517" /><di:waypoint x="1302" y="517" /><di:waypoint x="1302" y="482" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH4_di" bpmnElement="FH4"><di:waypoint x="1324" y="460" /><di:waypoint x="1380" y="460" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH5_SeqToBar_di" bpmnElement="FH5_SeqToBar"><di:waypoint x="1450" y="495" /><di:waypoint x="1450" y="600" /><di:waypoint x="255" y="600" /><di:waypoint x="255" y="730" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH6_di" bpmnElement="FH6"><di:waypoint x="320" y="765" /><di:waypoint x="380" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Rework_Loop_di" bpmnElement="FH_Rework_Loop"><di:waypoint x="1102" y="900" /><di:waypoint x="1102" y="920" /><di:waypoint x="402" y="920" /><di:waypoint x="402" y="787" /><bpmndi:BPMNLabel><dc:Bounds x="693" y="902" width="52" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH7_di" bpmnElement="FH7"><di:waypoint x="424" y="765" /><di:waypoint x="480" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_B1_di" bpmnElement="FH_B1"><di:waypoint x="502" y="743" /><di:waypoint x="502" y="682" /><di:waypoint x="580" y="682" /><bpmndi:BPMNLabel><dc:Bounds x="518" y="664" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_B2_di" bpmnElement="FH_B2"><di:waypoint x="524" y="765" /><di:waypoint x="580" y="765" /><bpmndi:BPMNLabel><dc:Bounds x="530" y="747" width="45" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_B3_di" bpmnElement="FH_B3"><di:waypoint x="502" y="787" /><di:waypoint x="502" y="847" /><di:waypoint x="580" y="847" /><bpmndi:BPMNLabel><dc:Bounds x="515" y="829" width="52" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_J1_di" bpmnElement="FH_J1"><di:waypoint x="730" y="682" /><di:waypoint x="802" y="682" /><di:waypoint x="802" y="743" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_J2_di" bpmnElement="FH_J2"><di:waypoint x="730" y="765" /><di:waypoint x="780" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_J3_di" bpmnElement="FH_J3"><di:waypoint x="730" y="847" /><di:waypoint x="802" y="847" /><di:waypoint x="802" y="787" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH8_di" bpmnElement="FH8"><di:waypoint x="824" y="765" /><di:waypoint x="880" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH9_di" bpmnElement="FH9"><di:waypoint x="1020" y="765" /><di:waypoint x="1080" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Pass_di" bpmnElement="FH_Pass"><di:waypoint x="1124" y="765" /><di:waypoint x="1950" y="765" /><bpmndi:BPMNLabel><dc:Bounds x="1520" y="747" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH_Fail_di" bpmnElement="FH_Fail"><di:waypoint x="1102" y="787" /><di:waypoint x="1102" y="835" /><bpmndi:BPMNLabel><dc:Bounds x="1110" y="804" width="35" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FH10_di" bpmnElement="FH10"><di:waypoint x="2090" y="765" /><di:waypoint x="2240" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Order_di" bpmnElement="MF_Order"><di:waypoint x="650" y="165" /><di:waypoint x="650" y="295" /><di:waypoint x="255" y="295" /><di:waypoint x="255" y="425" /><bpmndi:BPMNLabel><dc:Bounds x="396" y="277" width="112" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_SuggestAlt_di" bpmnElement="MF_SuggestAlt"><di:waypoint x="850" y="525" /><di:waypoint x="850" y="165" /><bpmndi:BPMNLabel><dc:Bounds x="858" y="338" width="82" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_GivePager_di" bpmnElement="MF_GivePager"><di:waypoint x="1450" y="425" /><di:waypoint x="1450" y="295" /><di:waypoint x="1570" y="295" /><di:waypoint x="1570" y="165" /><bpmndi:BPMNLabel><dc:Bounds x="1458" y="353" width="158" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Buzz_di" bpmnElement="MF_Buzz"><di:waypoint x="2020" y="730" /><di:waypoint x="2020" y="165" /><bpmndi:BPMNLabel><dc:Bounds x="2028" y="440" width="128" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
